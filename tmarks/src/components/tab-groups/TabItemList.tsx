@@ -63,7 +63,7 @@ export function TabItemList({
 
   if (!items || items.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-muted-foreground">
         此标签页组没有标签页
       </div>
     )

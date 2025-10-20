@@ -76,30 +76,30 @@ export function TabGroupCard({
               />
               <button
                 onClick={onSaveEdit}
-                className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
+                className="p-2 text-success hover:bg-success/10 rounded transition-colors"
               >
                 <Check className="w-5 h-5" />
               </button>
               <button
                 onClick={onCancelEdit}
-                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                className="p-2 text-muted-foreground hover:bg-muted rounded transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-2 group">
-              <h3 className="text-xl font-semibold text-gray-900">{group.title}</h3>
+              <h3 className="text-xl font-semibold text-foreground">{group.title}</h3>
               <button
                 onClick={onStartEdit}
-                className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-gray-600 transition-opacity"
+                className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-foreground transition-opacity"
               >
                 <Edit2 className="w-4 h-4" />
               </button>
             </div>
           )}
 
-          <div className="flex items-center gap-4 text-sm text-gray-600 mt-2">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
             <div className="flex items-center gap-1">
               <Layers className="w-4 h-4" />
               <span>{group.item_count || 0} 个标签页</span>
@@ -126,42 +126,42 @@ export function TabGroupCard({
         <div className="flex items-center gap-2">
           <button
             onClick={() => onColorClick(group.id)}
-            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors"
             title="设置颜色"
           >
             <Palette className="w-5 h-5" />
           </button>
           <button
             onClick={() => onTagsClick(group.id)}
-            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors"
             title="管理标签"
           >
             <Tag className="w-5 h-5" />
           </button>
           <button
             onClick={() => onShareClick(group.id)}
-            className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+            className="p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors"
             title="分享"
           >
             <Share2 className="w-5 h-5" />
           </button>
           <button
             onClick={() => onOpenAll(group.items || [])}
-            className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+            className="p-2 text-success hover:bg-success/10 rounded-lg transition-colors"
             title="打开所有"
           >
             <FolderOpen className="w-5 h-5" />
           </button>
           <button
             onClick={() => onExport(group)}
-            className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+            className="p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors"
             title="导出 Markdown"
           >
             <Download className="w-5 h-5" />
           </button>
           <button
             onClick={() => onDelete(group.id, group.title)}
-            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
             title="删除"
           >
             <Trash2 className="w-5 h-5" />

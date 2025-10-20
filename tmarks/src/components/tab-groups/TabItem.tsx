@@ -61,12 +61,12 @@ export function TabItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group flex items-center gap-3 p-3 rounded-lg border transition-all ${
+      className={`group flex items-center gap-3 p-3 rounded border transition-all ${
         isHighlighted
-          ? 'bg-yellow-50 border-yellow-300'
+          ? 'bg-warning/10 border-warning/30'
           : isSelected
-            ? 'bg-blue-50 border-blue-300'
-            : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+            ? 'bg-primary/10 border-primary/30'
+            : 'bg-card border-border hover:bg-muted'
       }`}
     >
       {/* Drag Handle */}
@@ -74,7 +74,7 @@ export function TabItem({
         <button
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600"
+          className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
         >
           <GripVertical className="w-4 h-4" />
         </button>
@@ -89,7 +89,7 @@ export function TabItem({
             e.stopPropagation()
             onItemClick(item, e as any)
           }}
-          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+          className="checkbox"
         />
       )}
 
@@ -117,7 +117,7 @@ export function TabItem({
                 setEditingItemId(null)
               }
             }}
-            className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input w-full text-sm"
             autoFocus
           />
         ) : (
@@ -127,19 +127,19 @@ export function TabItem({
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate"
+                className="text-sm font-medium text-foreground hover:text-primary truncate"
                 onClick={(e) => !batchMode && e.stopPropagation()}
               >
                 {item.title}
               </a>
               {item.is_pinned === 1 && (
-                <Pin className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                <Pin className="w-3 h-3 text-warning flex-shrink-0" />
               )}
               {item.is_todo === 1 && (
-                <CheckSquare className="w-3 h-3 text-green-600 flex-shrink-0" />
+                <CheckSquare className="w-3 h-3 text-accent flex-shrink-0" />
               )}
             </div>
-            <p className="text-xs text-gray-500 truncate">{item.url}</p>
+            <p className="text-xs text-muted-foreground truncate">{item.url}</p>
           </>
         )}
       </div>
@@ -151,14 +151,14 @@ export function TabItem({
             <>
               <button
                 onClick={() => onSaveEdit(groupId, item.id)}
-                className="p-1.5 text-green-600 hover:bg-green-50 rounded transition-colors"
+                className="p-1.5 text-success hover:bg-success/10 rounded transition-colors"
                 title="保存"
               >
                 <Check className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setEditingItemId(null)}
-                className="p-1.5 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                className="p-1.5 text-muted-foreground hover:bg-muted rounded transition-colors"
                 title="取消"
               >
                 <X className="w-4 h-4" />
@@ -170,14 +170,14 @@ export function TabItem({
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-1.5 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                className="p-1.5 text-muted-foreground hover:bg-muted rounded transition-colors"
                 title="打开链接"
               >
                 <ExternalLink className="w-4 h-4" />
               </a>
               <button
                 onClick={() => onEditItem(item)}
-                className="p-1.5 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                className="p-1.5 text-muted-foreground hover:bg-muted rounded transition-colors"
                 title="编辑"
               >
                 <Edit2 className="w-4 h-4" />
@@ -186,8 +186,8 @@ export function TabItem({
                 onClick={() => onTogglePin(groupId, item.id, item.is_pinned || 0)}
                 className={`p-1.5 rounded transition-colors ${
                   item.is_pinned === 1
-                    ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? 'text-warning bg-warning/10 hover:bg-warning/20'
+                    : 'text-muted-foreground hover:bg-muted'
                 }`}
                 title={item.is_pinned === 1 ? '取消固定' : '固定'}
               >
@@ -197,8 +197,8 @@ export function TabItem({
                 onClick={() => onToggleTodo(groupId, item.id, item.is_todo || 0)}
                 className={`p-1.5 rounded transition-colors ${
                   item.is_todo === 1
-                    ? 'text-green-600 bg-green-50 hover:bg-green-100'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? 'text-accent bg-accent/10 hover:bg-accent/20'
+                    : 'text-muted-foreground hover:bg-muted'
                 }`}
                 title={item.is_todo === 1 ? '取消待办' : '标记待办'}
               >
@@ -206,7 +206,7 @@ export function TabItem({
               </button>
               <button
                 onClick={() => onDeleteItem(groupId, item.id, item.title)}
-                className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
+                className="p-1.5 text-destructive hover:bg-destructive/10 rounded transition-colors"
                 title="删除"
               >
                 <Trash2 className="w-4 h-4" />

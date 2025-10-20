@@ -131,21 +131,6 @@ export function useTabGroupActions({
     }
   }
 
-  const handleColorChange = async (groupId: string, color: string | null) => {
-    try {
-      await tabGroupsService.updateTabGroup(groupId, { color })
-      setTabGroups((prev) =>
-        prev.map((g) => (g.id === groupId ? { ...g, color } : g))
-      )
-      success('颜色已更新')
-    } catch (err) {
-      console.error('Failed to update color:', err)
-      showError('更新颜色失败，请重试')
-    }
-  }
-
-
-
   const handleEditItem = (item: TabGroupItem) => {
     setEditingItemId(item.id)
     setEditingTitle(item.title)
@@ -270,7 +255,6 @@ export function useTabGroupActions({
     handleExportMarkdown,
     handleEditGroup,
     handleSaveGroupEdit,
-    handleColorChange,
     handleEditItem,
     handleSaveEdit,
     handleTogglePin,

@@ -29,7 +29,7 @@ export function MobileBottomNav() {
       id: 'tab-groups',
       label: '标签页',
       icon: Layers,
-      path: '/tab-groups'
+      path: '/tab'
     },
     {
       id: 'data',

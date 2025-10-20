@@ -24,14 +24,14 @@ export function AppShell() {
   const menuRef = useRef<HTMLDivElement>(null)
 
   // 判断当前是否在标签页组页面
-  const isOnTabGroupsPage = location.pathname.startsWith('/tab-groups')
+  const isOnTabGroupsPage = location.pathname.startsWith('/tab')
 
   // 切换按钮点击处理
   const handleToggleView = () => {
     if (isOnTabGroupsPage) {
       navigate('/bookmarks')
     } else {
-      navigate('/tab-groups')
+      navigate('/tab')
     }
   }
 

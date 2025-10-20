@@ -29,10 +29,10 @@ export function AppRouter() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
           <Route path="/" element={<BookmarksPage />} />
-          <Route path="/tab-groups" element={<TabGroupsPage />} />
-          <Route path="/tab-groups/trash" element={<TrashPage />} />
-          <Route path="/tab-groups/statistics" element={<StatisticsPage />} />
-          <Route path="/tab-groups/:id" element={<TabGroupDetailPage />} />
+          <Route path="/tab" element={<TabGroupsPage />} />
+          <Route path="/tab/trash" element={<TrashPage />} />
+          <Route path="/tab/statistics" element={<StatisticsPage />} />
+          <Route path="/tab/:id" element={<TabGroupDetailPage />} />
           <Route path="/api-keys" element={<ApiKeysPage />} />
           <Route path="/share-settings" element={<ShareSettingsPage />} />
           <Route path="/import-export" element={<ImportExportPage />} />

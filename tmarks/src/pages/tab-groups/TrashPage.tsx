@@ -87,8 +87,8 @@ export function TrashPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">加载中...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">加载中...</p>
         </div>
       </div>
     )
@@ -98,10 +98,10 @@ export function TrashPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
+          <p className="text-destructive mb-4">{error}</p>
           <button
             onClick={loadTrash}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
           >
             重试
           </button>
@@ -115,37 +115,37 @@ export function TrashPage() {
       {/* Header */}
       <div className="mb-8">
         <Link
-          to="/tab-groups"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+          to="/tab"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>返回标签页组</span>
         </Link>
         <div className="flex items-center gap-3 mb-2">
-          <Archive className="w-8 h-8 text-gray-600" />
-          <h1 className="text-3xl font-bold text-gray-900">回收站</h1>
+          <Archive className="w-8 h-8 text-muted-foreground" />
+          <h1 className="text-3xl font-bold text-foreground">回收站</h1>
         </div>
-        <p className="text-gray-600">已删除的标签页组将保留在这里，可以恢复或永久删除</p>
+        <p className="text-muted-foreground">已删除的标签页组将保留在这里，可以恢复或永久删除</p>
       </div>
 
       {/* Empty State */}
       {tabGroups.length === 0 ? (
         <div className="text-center py-16">
-          <Archive className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">回收站是空的</h3>
-          <p className="text-gray-600">没有已删除的标签页组</p>
+          <Archive className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">回收站是空的</h3>
+          <p className="text-muted-foreground">没有已删除的标签页组</p>
         </div>
       ) : (
         <div className="space-y-4">
           {tabGroups.map((group) => (
             <div
               key={group.id}
-              className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow"
+              className="card p-6 hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{group.title}</h3>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <h3 className="text-lg font-semibold text-foreground mb-2">{group.title}</h3>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Layers className="w-4 h-4" />
                       <span>{group.item_count || 0} 个标签页</span>
@@ -168,14 +168,14 @@ export function TrashPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleRestore(group.id, group.title)}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-success text-white rounded-lg hover:bg-success/90 transition-colors"
                   >
                     <RotateCcw className="w-4 h-4" />
                     恢复
                   </button>
                   <button
                     onClick={() => handlePermanentDelete(group.id, group.title)}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-destructive text-white rounded-lg hover:bg-destructive/90 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                     永久删除

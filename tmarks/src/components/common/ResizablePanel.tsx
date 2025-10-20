@@ -73,31 +73,31 @@ export function ResizablePanel({
   return (
     <div
       ref={panelRef}
-      className="relative flex-shrink-0 bg-white"
+      className="relative flex-shrink-0 bg-card"
       style={{ width: `${width}px` }}
     >
       {children}
 
       {/* Resize Handle */}
       <div
-        className={`absolute top-0 ${side === 'left' ? 'right-0' : 'left-0'} h-full w-1 cursor-col-resize group hover:bg-blue-500 transition-colors ${
-          isResizing ? 'bg-blue-500' : 'bg-transparent'
+        className={`absolute top-0 ${side === 'left' ? 'right-0' : 'left-0'} h-full w-1 cursor-col-resize group hover:bg-primary transition-colors ${
+          isResizing ? 'bg-primary' : 'bg-transparent'
         }`}
         onMouseDown={handleMouseDown}
       >
         {/* Grip Icon */}
-        <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 left-1/2 bg-white border border-gray-300 rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
-          <GripVertical className="w-3 h-3 text-gray-600" />
+        <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 left-1/2 bg-card border border-border rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+          <GripVertical className="w-3 h-3 text-muted-foreground" />
         </div>
       </div>
 
       {/* Reset Button */}
       <button
         onClick={handleReset}
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 p-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all opacity-0 hover:opacity-100 group-hover:opacity-100"
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 p-2 bg-card border border-border rounded shadow-sm hover:bg-muted hover:shadow-md transition-all opacity-0 hover:opacity-100 group-hover:opacity-100"
         title="恢复默认宽度"
       >
-        <RotateCcw className="w-4 h-4 text-gray-600" />
+        <RotateCcw className="w-4 h-4 text-muted-foreground" />
       </button>
     </div>
   )

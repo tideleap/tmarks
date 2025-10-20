@@ -1,6 +1,6 @@
-import { Search, CheckCircle, BarChart3, Archive } from 'lucide-react'
+import { Search, CheckCircle, BarChart3, Archive, ArrowUpDown } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { SortSelector, type SortOption } from './SortSelector'
+import { type SortOption } from './SortSelector'
 
 interface SearchBarProps {
   searchQuery: string
@@ -19,10 +19,18 @@ export function SearchBar({
   onBatchModeToggle,
   batchMode,
 }: SearchBarProps) {
+  const sortOptions: { value: SortOption; label: string }[] = [
+    { value: 'created', label: '按创建时间' },
+    { value: 'title', label: '按标题' },
+    { value: 'count', label: '按标签页数量' },
+  ]
+
+  const currentSortLabel = sortOptions.find(opt => opt.value === sortBy)?.label || '排序'
+
   return (
-    <div className="flex items-center gap-4 mb-6">
+    <div className="flex items-center gap-3 flex-1">
       {/* Search Input */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative min-w-0">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <input
           type="text"
@@ -33,38 +41,54 @@ export function SearchBar({
         />
       </div>
 
-      {/* Sort Selector */}
-      <SortSelector value={sortBy} onChange={onSortChange} />
+      {/* Sort Selector - Icon Only */}
+      <div className="relative flex-shrink-0">
+        <select
+          value={sortBy}
+          onChange={(e) => onSortChange(e.target.value as SortOption)}
+          className="appearance-none w-10 h-10 flex items-center justify-center border border-border rounded hover:bg-muted transition-colors cursor-pointer opacity-0 absolute inset-0"
+          title={currentSortLabel}
+        >
+          {sortOptions.map(option => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <div className="w-10 h-10 flex items-center justify-center border border-border rounded hover:bg-muted transition-colors pointer-events-none" style={{backgroundColor: 'var(--card)'}}>
+          <ArrowUpDown className="w-5 h-5 text-muted-foreground" />
+        </div>
+      </div>
 
-      {/* Batch Mode Toggle */}
+      {/* Batch Mode Toggle - Icon Only */}
       <button
         onClick={onBatchModeToggle}
-        className={`flex items-center gap-2 px-4 py-2 rounded transition-colors ${
+        className={`w-10 h-10 flex-shrink-0 flex items-center justify-center rounded transition-colors ${
           batchMode
             ? 'bg-primary text-primary-foreground'
-            : 'btn-outline'
+            : 'border border-border hover:bg-muted text-muted-foreground'
         }`}
+        title={batchMode ? '退出批量操作' : '批量操作'}
       >
         <CheckCircle className="w-5 h-5" />
-        批量操作
       </button>
 
-      {/* Statistics Link */}
+      {/* Statistics Link - Icon Only */}
       <Link
-        to="/tab-groups/statistics"
-        className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded hover:bg-muted transition-colors text-foreground"
+        to="/tab/statistics"
+        className="w-10 h-10 flex-shrink-0 flex items-center justify-center border border-border rounded hover:bg-muted transition-colors text-muted-foreground"
+        title="统计"
       >
         <BarChart3 className="w-5 h-5" />
-        统计
       </Link>
 
-      {/* Trash Link */}
+      {/* Trash Link - Icon Only */}
       <Link
-        to="/tab-groups/trash"
-        className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded hover:bg-muted transition-colors text-foreground"
+        to="/tab/trash"
+        className="w-10 h-10 flex-shrink-0 flex items-center justify-center border border-border rounded hover:bg-muted transition-colors text-muted-foreground"
+        title="回收站"
       >
         <Archive className="w-5 h-5" />
-        回收站
       </Link>
     </div>
   )

@@ -75,7 +75,7 @@ export function AlertDialog({
       />
 
       {/* 弹窗内容 */}
-      <div className="relative card rounded-3xl shadow-2xl border border-base-300 max-w-md w-full animate-scale-in bg-base-100">
+      <div className="relative card rounded-3xl shadow-2xl border max-w-md w-full animate-scale-in" style={{backgroundColor: 'var(--card)', borderColor: 'var(--border)'}}>
         {/* 图标区域 */}
         <div className="flex justify-center mb-6">
           <div className={`w-16 h-16 rounded-2xl ${styles.icon} ${styles.iconRing} ring-8 flex items-center justify-center shadow-lg`}>

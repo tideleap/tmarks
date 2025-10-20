@@ -5,6 +5,7 @@ import { AppRouter } from './routes'
 import { useAuthStore } from './stores/authStore'
 import { ToastContainer } from './components/common/Toast'
 import { useToastStore } from './stores/toastStore'
+import { useThemeStore } from './stores/themeStore'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,7 +20,15 @@ const queryClient = new QueryClient({
 function App() {
   const { user, isAuthenticated, accessToken, refreshToken, clearAuth, refreshAccessToken } = useAuthStore()
   const { toasts, removeToast } = useToastStore()
+  const { theme, colorTheme } = useThemeStore()
   const previousUserId = useRef<string | null | undefined>(undefined)
+
+  // 应用主题到 document.documentElement
+  useEffect(() => {
+    const root = document.documentElement
+    root.setAttribute('data-theme', theme)
+    root.setAttribute('data-color-theme', colorTheme)
+  }, [theme, colorTheme])
 
   useEffect(() => {
     if (isAuthenticated && !accessToken) {

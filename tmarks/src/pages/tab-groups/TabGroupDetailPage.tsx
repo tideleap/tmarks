@@ -99,7 +99,7 @@ export function TabGroupDetailPage() {
         try {
           await tabGroupsService.deleteTabGroup(tabGroup.id)
           success('删除成功')
-          navigate('/tab-groups')
+          navigate('/tab')
         } catch (err) {
           console.error('Failed to delete tab group:', err)
           showError('删除失败，请重试')
@@ -161,9 +161,9 @@ export function TabGroupDetailPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <p className="text-red-500 mb-4">{error || '标签页组不存在'}</p>
+          <p className="text-destructive mb-4">{error || '标签页组不存在'}</p>
           <button
-            onClick={() => navigate('/tab-groups')}
+            onClick={() => navigate('/tab')}
             className="px-4 py-2 rounded-lg border border-border hover:bg-muted/50 transition-colors"
             style={{ color: 'var(--foreground)' }}
           >
@@ -179,7 +179,7 @@ export function TabGroupDetailPage() {
       {/* Header */}
       <div className="mb-6">
         <button
-          onClick={() => navigate('/tab-groups')}
+          onClick={() => navigate('/tab')}
           className="flex items-center gap-2 mb-4 text-sm hover:opacity-70 transition-opacity"
           style={{ color: 'var(--muted-foreground)' }}
         >
@@ -206,7 +206,7 @@ export function TabGroupDetailPage() {
                 <button
                   onClick={handleSaveTitle}
                   disabled={isSavingTitle || !editedTitle.trim()}
-                  className="p-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors disabled:opacity-50"
+                  className="p-2 rounded-lg bg-success text-white hover:bg-success/90 transition-colors disabled:opacity-50"
                 >
                   <Check className="w-5 h-5" />
                 </button>
@@ -248,11 +248,11 @@ export function TabGroupDetailPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleDelete}
-              className="px-4 py-2 rounded-lg border border-border hover:bg-red-500/10 hover:border-red-500/50 transition-colors flex items-center gap-2"
+              className="px-4 py-2 rounded-lg border border-border hover:bg-destructive/10 hover:border-destructive/50 transition-colors flex items-center gap-2"
               title="删除标签页组"
             >
-              <Trash2 className="w-4 h-4 text-red-500" />
-              <span className="text-sm font-medium text-red-500">删除</span>
+              <Trash2 className="w-4 h-4 text-destructive" />
+              <span className="text-sm font-medium text-destructive">删除</span>
             </button>
           </div>
         </div>
@@ -273,7 +273,7 @@ export function TabGroupDetailPage() {
                 </div>
                 <button
                   onClick={handleRestoreAll}
-                  className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-medium hover:shadow-lg transition-all duration-200 flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-lg bg-success text-white text-sm font-medium hover:shadow-lg hover:bg-success/90 transition-all duration-200 flex items-center gap-1.5"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   全部恢复

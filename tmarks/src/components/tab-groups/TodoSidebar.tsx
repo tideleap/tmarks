@@ -123,24 +123,24 @@ export function TodoSidebar({ tabGroups, onUpdate }: TodoSidebarProps) {
   }
 
   return (
-    <div className="w-full h-full bg-gradient-to-b from-gray-50 to-gray-100 border-l border-gray-200 overflow-y-auto shadow-sm flex flex-col">
+    <div className="w-full h-full bg-card border-l border-border overflow-y-auto flex flex-col">
       {/* 标题栏 */}
-      <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-purple-500 to-purple-600 sticky top-0 z-10 shadow-lg">
+      <div className="p-4 border-b border-border bg-muted sticky top-0 z-10 shadow-md">
         <div className="flex items-center gap-2">
-          <ListTodo className="w-5 h-5 text-white" />
-          <h2 className="text-lg font-bold text-white">待办事项</h2>
+          <ListTodo className="w-5 h-5 text-foreground" />
+          <h2 className="text-lg font-bold text-foreground">待办事项</h2>
         </div>
         <div className="flex items-center gap-4 mt-2">
           <div className="flex items-center gap-1.5">
-            <Circle className="w-3 h-3 text-purple-200" />
-            <span className="text-xs text-purple-100">
+            <Circle className="w-3 h-3 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">
               {sortedTodos.length} 个待办
             </span>
           </div>
           {sortedTodos.length > 0 && (
             <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3 h-3 text-purple-200" />
-              <span className="text-xs text-purple-100">
+              <CheckCircle2 className="w-3 h-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">
                 待完成
               </span>
             </div>
@@ -152,11 +152,11 @@ export function TodoSidebar({ tabGroups, onUpdate }: TodoSidebarProps) {
       <div className="p-4 space-y-3">
         {sortedTodos.length === 0 ? (
           <div className="text-center py-16">
-            <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
-              <ListTodo className="w-10 h-10 text-purple-400" />
+            <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+              <ListTodo className="w-10 h-10 text-muted-foreground" />
             </div>
-            <p className="text-gray-500 text-sm font-medium">暂无待办事项</p>
-            <p className="text-gray-400 text-xs mt-2">
+            <p className="text-muted-foreground text-sm font-medium">暂无待办事项</p>
+            <p className="text-muted-foreground/70 text-xs mt-2">
               在标签页上点击"待办"按钮添加
             </p>
           </div>
@@ -169,7 +169,7 @@ export function TodoSidebar({ tabGroups, onUpdate }: TodoSidebarProps) {
             return (
               <div
                 key={item.id}
-                className="group bg-white rounded-xl p-4 border border-gray-200 hover:shadow-lg hover:border-purple-200 transition-all duration-200"
+                className="group bg-card rounded-lg p-4 border border-border hover:shadow-md hover:border-primary/30 transition-all duration-200"
               >
                 {/* 标题和操作 */}
                 <div className="flex items-start gap-3">
@@ -177,18 +177,18 @@ export function TodoSidebar({ tabGroups, onUpdate }: TodoSidebarProps) {
                   <button
                     onClick={() => handleToggleTodo(item.id, item.is_todo || 0)}
                     disabled={processingId === item.id}
-                    className={`flex-shrink-0 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${
+                    className={`flex-shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center transition-all duration-200 ${
                       processingId === item.id
                         ? 'opacity-50 cursor-not-allowed'
-                        : 'hover:scale-110 hover:border-purple-500'
+                        : 'hover:scale-110 hover:border-primary'
                     } ${
                       item.is_todo
-                        ? 'border-purple-500 bg-gradient-to-br from-purple-50 to-purple-100'
-                        : 'border-gray-300 hover:bg-purple-50'
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:bg-muted'
                     }`}
                   >
                     {item.is_todo && (
-                      <Check className="w-4 h-4 text-purple-600" />
+                      <Check className="w-4 h-4 text-primary" />
                     )}
                   </button>
 
@@ -208,12 +208,12 @@ export function TodoSidebar({ tabGroups, onUpdate }: TodoSidebarProps) {
                               setEditingTitle('')
                             }
                           }}
-                          className="flex-1 px-2 py-1 text-sm border border-purple-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          className="input flex-1 text-sm"
                           autoFocus
                         />
                         <button
                           onClick={() => handleSaveRename(item.id)}
-                          className="text-green-600 hover:text-green-700"
+                          className="text-success hover:text-success/80"
                         >
                           <Check className="w-4 h-4" />
                         </button>
@@ -222,25 +222,25 @@ export function TodoSidebar({ tabGroups, onUpdate }: TodoSidebarProps) {
                             setEditingItemId(null)
                             setEditingTitle('')
                           }}
-                          className="text-gray-600 hover:text-gray-700"
+                          className="text-muted-foreground hover:text-foreground"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     ) : (
-                      <h3 className="text-sm font-semibold text-gray-900 truncate group-hover:text-purple-600 transition-colors">
+                      <h3 className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
                         {item.title}
                       </h3>
                     )}
 
                     {/* 来源标签 */}
                     <div className="flex items-center gap-2 mt-2">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-50 text-purple-700 text-xs rounded-full font-medium">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full font-medium">
                         <Circle className="w-2 h-2 fill-current" />
                         {groupTitle}
                       </span>
                       {relativeTime && (
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-muted-foreground/70">
                           {relativeTime}
                         </span>
                       )}
@@ -249,8 +249,8 @@ export function TodoSidebar({ tabGroups, onUpdate }: TodoSidebarProps) {
                     {/* URL */}
                     {item.url && (
                       <div className="flex items-center gap-1 mt-2">
-                        <ExternalLink className="w-3 h-3 text-gray-400" />
-                        <p className="text-xs text-gray-500 truncate">
+                        <ExternalLink className="w-3 h-3 text-muted-foreground/70" />
+                        <p className="text-xs text-muted-foreground truncate">
                           {new URL(item.url).hostname}
                         </p>
                       </div>
@@ -260,7 +260,7 @@ export function TodoSidebar({ tabGroups, onUpdate }: TodoSidebarProps) {
                   {/* 三个点菜单 */}
                   <DropdownMenu
                     trigger={
-                      <button className="flex-shrink-0 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors">
+                      <button className="flex-shrink-0 p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors">
                         <MoreVertical className="w-4 h-4" />
                       </button>
                     }

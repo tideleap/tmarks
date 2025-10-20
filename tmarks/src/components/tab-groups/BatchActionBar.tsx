@@ -22,23 +22,23 @@ export function BatchActionBar({
   onCancel,
 }: BatchActionBarProps) {
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+    <div className="bg-primary/10 border border-primary/20 rounded p-4 mb-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-blue-900">
+          <span className="text-sm font-medium text-foreground">
             已选择 {selectedCount} 个标签页
           </span>
           <div className="flex items-center gap-2">
             <button
               onClick={onSelectAll}
-              className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
+              className="text-sm text-primary hover:text-primary/80 transition-colors"
             >
               全选
             </button>
-            <span className="text-gray-300">|</span>
+            <span className="text-border">|</span>
             <button
               onClick={onDeselectAll}
-              className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
+              className="text-sm text-primary hover:text-primary/80 transition-colors"
             >
               取消全选
             </button>
@@ -48,7 +48,7 @@ export function BatchActionBar({
         <div className="flex items-center gap-2">
           <button
             onClick={onBatchPin}
-            className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+            className="flex items-center gap-2 px-3 py-1.5 bg-card border border-border rounded hover:bg-muted transition-colors text-sm"
             disabled={selectedCount === 0}
           >
             <Pin className="w-4 h-4" />
@@ -56,7 +56,7 @@ export function BatchActionBar({
           </button>
           <button
             onClick={onBatchTodo}
-            className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+            className="flex items-center gap-2 px-3 py-1.5 bg-card border border-border rounded hover:bg-muted transition-colors text-sm"
             disabled={selectedCount === 0}
           >
             <CheckSquare className="w-4 h-4" />
@@ -64,7 +64,7 @@ export function BatchActionBar({
           </button>
           <button
             onClick={onBatchExport}
-            className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+            className="flex items-center gap-2 px-3 py-1.5 bg-card border border-border rounded hover:bg-muted transition-colors text-sm"
             disabled={selectedCount === 0}
           >
             <Download className="w-4 h-4" />
@@ -72,7 +72,7 @@ export function BatchActionBar({
           </button>
           <button
             onClick={onBatchDelete}
-            className="flex items-center gap-2 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+            className="flex items-center gap-2 px-3 py-1.5 bg-destructive text-destructive-foreground rounded hover:bg-destructive/90 transition-colors text-sm"
             disabled={selectedCount === 0}
           >
             <Trash2 className="w-4 h-4" />
@@ -80,7 +80,7 @@ export function BatchActionBar({
           </button>
           <button
             onClick={onCancel}
-            className="flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
+            className="flex items-center gap-2 px-3 py-1.5 bg-muted text-foreground rounded hover:bg-muted/80 transition-colors text-sm"
           >
             <X className="w-4 h-4" />
             取消

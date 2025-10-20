@@ -8,18 +8,6 @@ interface TabGroupSidebarProps {
   onSelectGroup: (groupId: string | null) => void
 }
 
-const colorClasses: Record<string, string> = {
-  '红色': 'text-red-500',
-  '橙色': 'text-orange-500',
-  '黄色': 'text-yellow-500',
-  '绿色': 'text-green-500',
-  '青色': 'text-cyan-500',
-  '蓝色': 'text-blue-500',
-  '紫色': 'text-purple-500',
-  '粉色': 'text-pink-500',
-  '灰色': 'text-gray-500',
-}
-
 export function TabGroupSidebar({
   tabGroups,
   selectedGroupId,
@@ -42,10 +30,10 @@ export function TabGroupSidebar({
   }
 
   return (
-    <div className="w-full h-full bg-white border-r border-gray-200 flex flex-col overflow-hidden">
+    <div className="w-full h-full bg-card border-r border-border flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="px-3 py-2 border-b border-gray-200">
-        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+      <div className="px-3 py-2 border-b border-border">
+        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           标签页组
         </div>
       </div>
@@ -55,23 +43,23 @@ export function TabGroupSidebar({
         {/* 全部 */}
         <div
           onClick={() => onSelectGroup(null)}
-          className={`group flex items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-gray-100 ${
-            selectedGroupId === null ? 'bg-blue-50' : ''
+          className={`group flex items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-muted ${
+            selectedGroupId === null ? 'bg-primary/10' : ''
           }`}
         >
           <div className="w-4 h-4 flex items-center justify-center">
-            <Circle className={`w-2 h-2 ${selectedGroupId === null ? 'fill-blue-500 text-blue-500' : 'text-gray-400'}`} />
+            <Circle className={`w-2 h-2 ${selectedGroupId === null ? 'fill-primary text-primary' : 'text-muted-foreground'}`} />
           </div>
-          <span className={`text-sm flex-1 ${selectedGroupId === null ? 'text-blue-600 font-medium' : 'text-gray-700'}`}>
+          <span className={`text-sm flex-1 ${selectedGroupId === null ? 'text-primary font-medium' : 'text-foreground'}`}>
             全部
           </span>
-          <span className="text-xs text-gray-500">{totalCount}</span>
+          <span className="text-xs text-muted-foreground">{totalCount}</span>
         </div>
 
         {/* 标签页组列表 */}
         {tabGroups.length === 0 ? (
           <div className="px-3 py-8 text-center">
-            <p className="text-xs text-gray-400">暂无分组</p>
+            <p className="text-xs text-muted-foreground/50">暂无分组</p>
           </div>
         ) : (
           tabGroups.map((group) => {
@@ -83,62 +71,60 @@ export function TabGroupSidebar({
               <div key={group.id}>
                 {/* 分组行 */}
                 <div
-                  className={`group flex items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-gray-100 ${
-                    isSelected ? 'bg-blue-50' : ''
+                  className={`group flex items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-muted ${
+                    isSelected ? 'bg-primary/10' : ''
                   }`}
                 >
                   {/* 展开/折叠按钮 */}
                   <button
                     onClick={(e) => toggleGroup(group.id, e)}
-                    className="w-4 h-4 flex items-center justify-center hover:bg-gray-200 rounded"
+                    className="w-4 h-4 flex items-center justify-center hover:bg-muted rounded"
                   >
                     {hasItems ? (
                       isExpanded ? (
-                        <ChevronDown className="w-3 h-3 text-gray-500" />
+                        <ChevronDown className="w-3 h-3 text-muted-foreground" />
                       ) : (
-                        <ChevronRight className="w-3 h-3 text-gray-500" />
+                        <ChevronRight className="w-3 h-3 text-muted-foreground" />
                       )
                     ) : (
                       <div className="w-3 h-3" />
                     )}
                   </button>
 
-                  {/* 颜色圆点 */}
+                  {/* 圆点 */}
                   <Circle
-                    className={`w-2 h-2 flex-shrink-0 ${
-                      group.color ? colorClasses[group.color] : 'text-gray-400'
-                    } ${isSelected ? 'fill-current' : ''}`}
+                    className={`w-2 h-2 flex-shrink-0 text-primary ${isSelected ? 'fill-current' : ''}`}
                   />
 
                   {/* 标题 */}
                   <span
                     onClick={() => onSelectGroup(group.id)}
                     className={`text-sm flex-1 truncate ${
-                      isSelected ? 'text-blue-600 font-medium' : 'text-gray-700'
+                      isSelected ? 'text-primary font-medium' : 'text-foreground'
                     }`}
                   >
                     {group.title}
                   </span>
 
                   {/* 数量 */}
-                  <span className="text-xs text-gray-500">{group.item_count || 0}</span>
+                  <span className="text-xs text-muted-foreground">{group.item_count || 0}</span>
                 </div>
 
                 {/* 子项列表 */}
                 {isExpanded && hasItems && (
-                  <div className="bg-gray-50">
+                  <div className="bg-muted/30">
                     {group.items?.slice(0, 10).map((item) => (
                       <div
                         key={item.id}
-                        className="flex items-center gap-2 px-3 py-1 pl-11 hover:bg-gray-100 cursor-pointer"
+                        className="flex items-center gap-2 px-3 py-1 pl-11 hover:bg-muted cursor-pointer"
                         onClick={() => window.open(item.url, '_blank')}
                       >
-                        <Circle className="w-1.5 h-1.5 text-gray-400" />
-                        <span className="text-xs text-gray-600 truncate flex-1">{item.title}</span>
+                        <Circle className="w-1.5 h-1.5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground truncate flex-1">{item.title}</span>
                       </div>
                     ))}
                     {(group.items?.length || 0) > 10 && (
-                      <div className="px-3 py-1 pl-11 text-xs text-gray-400">
+                      <div className="px-3 py-1 pl-11 text-xs text-muted-foreground/70">
                         还有 {(group.items?.length || 0) - 10} 项...
                       </div>
                     )}
