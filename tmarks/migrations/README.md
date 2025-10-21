@@ -70,6 +70,44 @@ ALTER TABLE users ADD COLUMN public_page_description TEXT;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_users_public_slug
   ON users(public_slug)
   WHERE public_slug IS NOT NULL;
+
+-- 0011_add_tab_groups_hierarchy.sql (2025-01-20)
+-- 添加无限层级文件夹支持
+ALTER TABLE tab_groups ADD COLUMN parent_id TEXT DEFAULT NULL;
+ALTER TABLE tab_groups ADD COLUMN is_folder INTEGER DEFAULT 0;
+CREATE INDEX IF NOT EXISTS idx_tab_groups_parent_id ON tab_groups(parent_id);
+CREATE INDEX IF NOT EXISTS idx_tab_groups_is_folder ON tab_groups(is_folder);
+CREATE INDEX IF NOT EXISTS idx_tab_groups_user_parent ON tab_groups(user_id, parent_id);
+
+-- 0012_add_tab_groups_position.sql (2025-01-21)
+-- 添加 position 字段支持拖拽排序
+ALTER TABLE tab_groups ADD COLUMN position INTEGER DEFAULT 0;
+UPDATE tab_groups
+SET position = (
+  SELECT COUNT(*)
+  FROM tab_groups AS t2
+  WHERE t2.user_id = tab_groups.user_id
+    AND COALESCE(t2.parent_id, '') = COALESCE(tab_groups.parent_id, '')
+    AND t2.created_at < tab_groups.created_at
+);
+CREATE INDEX IF NOT EXISTS idx_tab_groups_parent_position ON tab_groups(parent_id, position ASC);
+CREATE INDEX IF NOT EXISTS idx_tab_groups_user_parent_position ON tab_groups(user_id, parent_id, position ASC);
 ```
 
 > 提示：控制台不支持一次性粘贴多条语句，可按顺序逐条执行。
+
+## 使用 wrangler CLI 执行单个迁移文件
+
+如果需要单独执行某个迁移文件（而不是通过 migrations apply）：
+
+```bash
+# 本地数据库
+wrangler d1 execute tmarks-prod-db --file=./migrations/0011_add_tab_groups_hierarchy.sql
+wrangler d1 execute tmarks-prod-db --file=./migrations/0012_add_tab_groups_position.sql
+
+# 远程生产数据库
+wrangler d1 execute tmarks-prod-db --remote --file=./migrations/0011_add_tab_groups_hierarchy.sql
+wrangler d1 execute tmarks-prod-db --remote --file=./migrations/0012_add_tab_groups_position.sql
+```
+
+> 注意：`tmarks-prod-db` 是 wrangler.toml 中配置的数据库名称。

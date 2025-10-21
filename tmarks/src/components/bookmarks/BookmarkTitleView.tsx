@@ -50,7 +50,7 @@ function TitleOnlyCard({ bookmark, onEdit, readOnly = false }: TitleOnlyCardProp
 
   return (
     <div className="relative group">
-      <div className="rounded-xl border border-border/70 bg-card/95 backdrop-blur-sm shadow-[0_10px_26px_-16px_rgba(15,23,42,0.32)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_-14px_rgba(59,130,246,0.28)]">
+      <div className="rounded-xl border border-border/70 bg-card/95 backdrop-blur-sm shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/10">
         <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-primary/4 via-transparent to-secondary/8 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
         {!!onEdit && !readOnly && (

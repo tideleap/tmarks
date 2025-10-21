@@ -135,7 +135,7 @@ export function TagSidebar({
   
   return (
     <>
-    <div className="card flex flex-col h-full shadow-[0_10px_30px_-5px_rgba(0,0,0,0.1),0_5px_15px_-3px_rgba(0,0,0,0.05)]">
+    <div className="card flex flex-col h-full shadow-lg">
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <h3 className="text-lg sm:text-xl font-bold text-primary">
           标签

@@ -230,12 +230,16 @@ export interface TabGroup {
   title: string
   color: string | null
   tags: string[] | null
+  parent_id: string | null
+  is_folder: number
   is_deleted: number
   deleted_at: string | null
+  position: number
   created_at: string
   updated_at: string
   items?: TabGroupItem[]
   item_count?: number
+  children?: TabGroup[]
 }
 
 export interface TabGroupItem {
@@ -252,7 +256,9 @@ export interface TabGroupItem {
 
 export interface CreateTabGroupRequest {
   title?: string // Optional, will auto-generate if not provided
-  items: Array<{
+  parent_id?: string | null
+  is_folder?: boolean
+  items?: Array<{
     title: string
     url: string
     favicon?: string
@@ -263,6 +269,8 @@ export interface UpdateTabGroupRequest {
   title?: string
   color?: string | null
   tags?: string[] | null
+  parent_id?: string | null
+  position?: number
 }
 
 export interface TabGroupsResponse {

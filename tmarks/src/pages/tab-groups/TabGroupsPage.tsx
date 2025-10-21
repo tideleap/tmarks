@@ -9,7 +9,7 @@ import { BatchActionBar } from '@/components/tab-groups/BatchActionBar'
 import { EmptyState } from '@/components/tab-groups/EmptyState'
 import { TabGroupHeader } from '@/components/tab-groups/TabGroupHeader'
 import { TabItemList } from '@/components/tab-groups/TabItemList'
-import { TabGroupSidebar } from '@/components/tab-groups/TabGroupSidebar'
+import { TabGroupTree } from '@/components/tab-groups/TabGroupTree'
 import { TodoSidebar } from '@/components/tab-groups/TodoSidebar'
 import { ResizablePanel } from '@/components/common/ResizablePanel'
 import { arrayMove } from '@dnd-kit/sortable'
@@ -100,6 +100,85 @@ export function TabGroupsPage() {
       setError('加载标签页组失败')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  // 只刷新左侧树形列表，不影响中间和右侧列
+  const refreshTreeOnly = async () => {
+    try {
+      const groups = await tabGroupsService.getAllTabGroups()
+      // 保持当前选中的分组不变
+      const currentSelectedGroup = selectedGroupId
+        ? groups.find(g => g.id === selectedGroupId)
+        : null
+
+      setTabGroups(groups)
+
+      // 如果当前选中的分组仍然存在，保持选中状态
+      // 这样中间列的内容不会改变
+      if (currentSelectedGroup) {
+        // 不需要重新设置 selectedGroupId，因为它没有改变
+        // 中间列会继续显示相同的内容
+      }
+    } catch (err) {
+      console.error('Failed to refresh tree:', err)
+      setError('刷新失败')
+    }
+  }
+
+  const handleCreateFolder = async () => {
+    try {
+      await tabGroupsService.createFolder('新文件夹')
+      // 只刷新左侧树形列表
+      await refreshTreeOnly()
+    } catch (err) {
+      console.error('Failed to create folder:', err)
+      setError('创建文件夹失败')
+    }
+  }
+
+  const handleRenameGroup = async (groupId: string, newTitle: string) => {
+    try {
+      await tabGroupsService.updateTabGroup(groupId, { title: newTitle })
+      // 只刷新左侧树形列表
+      await refreshTreeOnly()
+    } catch (err) {
+      console.error('Failed to rename group:', err)
+      setError('重命名失败')
+    }
+  }
+
+  const handleMoveGroup = async (groupId: string, newParentId: string | null, newPosition: number) => {
+    try {
+      console.log('📦 handleMoveGroup:', { groupId, newParentId, newPosition })
+
+      // 更新拖拽项的 parent_id 和 position
+      await tabGroupsService.updateTabGroup(groupId, {
+        parent_id: newParentId,
+        position: newPosition
+      })
+
+      // 更新同级其他项的 position（将大于等于 newPosition 的项都 +1）
+      const siblings = tabGroups.filter(g =>
+        (g.parent_id || null) === newParentId && g.id !== groupId
+      )
+
+      const needsUpdate = siblings.filter(g => (g.position || 0) >= newPosition)
+      console.log('  → Updating positions for', needsUpdate.length, 'siblings')
+
+      await Promise.all(
+        needsUpdate.map(g =>
+          tabGroupsService.updateTabGroup(g.id, {
+            position: (g.position || 0) + 1
+          })
+        )
+      )
+
+      // 只刷新左侧树形列表，不影响中间和右侧列
+      await refreshTreeOnly()
+    } catch (err) {
+      console.error('Failed to move group:', err)
+      setError('移动失败')
     }
   }
 
@@ -241,10 +320,14 @@ export function TabGroupsPage() {
         maxWidth={400}
         storageKey="tab-groups-left-sidebar-width"
       >
-        <TabGroupSidebar
+        <TabGroupTree
           tabGroups={tabGroups}
           selectedGroupId={selectedGroupId}
           onSelectGroup={setSelectedGroupId}
+          onCreateFolder={handleCreateFolder}
+          onRenameGroup={handleRenameGroup}
+          onMoveGroup={handleMoveGroup}
+          onRefresh={refreshTreeOnly}
         />
       </ResizablePanel>
 

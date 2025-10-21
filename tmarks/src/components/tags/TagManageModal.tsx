@@ -144,7 +144,7 @@ export function TagManageModal({ tags, onClose }: TagManageModalProps) {
                     style={{ animationDelay: `${index * 40}ms` }}
                     onClick={() => handleEditClick(tag)}
                   >
-                    <div className="relative rounded-2xl border border-border bg-card/95 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.2)] hover:shadow-[0_18px_45px_-12px_rgba(59,130,246,0.35)] transition-all duration-200 hover:-translate-y-0.5">
+                    <div className="relative rounded-2xl border border-border bg-card/95 shadow-md hover:shadow-lg hover:shadow-primary/10 transition-all duration-200 hover:-translate-y-0.5">
                       <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           type="button"

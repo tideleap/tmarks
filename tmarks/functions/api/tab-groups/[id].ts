@@ -16,8 +16,11 @@ interface TabGroupRow {
   title: string
   color: string | null
   tags: string | null
+  parent_id: string | null
+  is_folder: number
   is_deleted: number
   deleted_at: string | null
+  position: number
   created_at: string
   updated_at: string
 }
@@ -36,6 +39,8 @@ interface UpdateTabGroupRequest {
   title?: string
   color?: string | null
   tags?: string[] | null
+  parent_id?: string | null
+  position?: number
 }
 
 // GET /api/tab-groups/:id - 获取单个标签页组详情
@@ -142,6 +147,16 @@ export const onRequestPatch: PagesFunction<Env, RouteParams, AuthContext>[] = [
         updates.push('tags = ?')
         params.push(body.tags ? JSON.stringify(body.tags) : null)
         hasColorOrTags = true
+      }
+
+      if (body.parent_id !== undefined) {
+        updates.push('parent_id = ?')
+        params.push(body.parent_id)
+      }
+
+      if (body.position !== undefined) {
+        updates.push('position = ?')
+        params.push(body.position)
       }
 
       if (updates.length === 0) {

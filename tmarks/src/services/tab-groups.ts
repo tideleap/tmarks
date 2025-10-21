@@ -62,6 +62,18 @@ export const tabGroupsService = {
   },
 
   /**
+   * 创建文件夹
+   */
+  async createFolder(title: string, parentId?: string | null) {
+    const response = await apiClient.post<{ tab_group: TabGroup }>('/../tab-groups', {
+      title,
+      parent_id: parentId,
+      is_folder: true,
+    })
+    return response.data!.tab_group
+  },
+
+  /**
    * 更新标签页组
    */
   async updateTabGroup(id: string, data: UpdateTabGroupRequest) {
@@ -92,6 +104,14 @@ export const tabGroupsService = {
    */
   async deleteTabGroupItem(itemId: string) {
     await apiClient.delete(`/../tab-groups/items/${itemId}`)
+  },
+
+  /**
+   * 批量添加标签页项到分组
+   */
+  async addItemsToGroup(_groupId: string, _items: Array<{ title: string; url: string; favicon?: string }>) {
+    // 由于后端没有批量添加的 API，暂时不支持此功能
+    throw new Error('批量添加功能需要后端支持')
   },
 
   /**

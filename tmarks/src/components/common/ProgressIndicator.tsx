@@ -285,13 +285,24 @@ export function CircularProgress({
   percentage,
   size = 64,
   strokeWidth = 4,
-  color = '#3b82f6',
-  backgroundColor = '#e5e7eb',
+  color,
+  backgroundColor,
   showPercentage = true,
   className = ''
 }: CircularProgressProps) {
   const [animatedPercentage, setAnimatedPercentage] = useState(0)
-  
+
+  // 使用 CSS 变量作为默认颜色
+  const defaultColor = typeof window !== 'undefined'
+    ? getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#3b82f6'
+    : '#3b82f6'
+  const defaultBgColor = typeof window !== 'undefined'
+    ? getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#e5e7eb'
+    : '#e5e7eb'
+
+  const finalColor = color || defaultColor
+  const finalBgColor = backgroundColor || defaultBgColor
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setAnimatedPercentage(percentage)
@@ -316,7 +327,7 @@ export function CircularProgress({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={backgroundColor}
+          stroke={finalBgColor}
           strokeWidth={strokeWidth}
           fill="transparent"
         />
@@ -325,7 +336,7 @@ export function CircularProgress({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={color}
+          stroke={finalColor}
           strokeWidth={strokeWidth}
           fill="transparent"
           strokeDasharray={strokeDasharray}
@@ -336,7 +347,7 @@ export function CircularProgress({
       </svg>
       {showPercentage && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+          <span className="text-sm font-medium text-foreground">
             {Math.round(animatedPercentage)}%
           </span>
         </div>
