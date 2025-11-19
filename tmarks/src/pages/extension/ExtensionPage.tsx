@@ -1,4 +1,4 @@
-import { Download, Chrome, CheckCircle, AlertCircle } from 'lucide-react'
+import { Download, Chrome, CheckCircle, AlertCircle, Globe } from 'lucide-react'
 
 export function ExtensionPage() {
   const handleDownload = (browser: 'chrome' | 'firefox' | 'edge' | 'opera' | 'brave' | '360' | 'qq' | 'sogou') => {
@@ -46,9 +46,7 @@ export function ExtensionPage() {
           {/* Firefox */}
           <div className="text-center p-3 rounded-xl border-2 transition-all" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
             <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.337 18.337c-3.515 3.515-9.213 3.515-12.728 0-3.515-3.515-3.515-9.213 0-12.728 3.515-3.515 9.213-3.515 12.728 0 3.515 3.515 3.515 9.213 0 12.728z"/>
-              </svg>
+              <Globe className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-sm font-bold mb-1" style={{ color: 'var(--foreground)' }}>Firefox</h3>
             <button onClick={() => handleDownload('firefox')} className="w-full inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 text-white text-xs font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
@@ -59,9 +57,7 @@ export function ExtensionPage() {
           {/* Edge */}
           <div className="text-center p-3 rounded-xl border-2 transition-all" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
             <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-              </svg>
+              <Chrome className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-sm font-bold mb-1" style={{ color: 'var(--foreground)' }}>Edge</h3>
             <button onClick={() => handleDownload('edge')} className="w-full inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 text-white text-xs font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
@@ -72,9 +68,7 @@ export function ExtensionPage() {
           {/* Opera */}
           <div className="text-center p-3 rounded-xl border-2 transition-all" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
             <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-              </svg>
+              <Globe className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-sm font-bold mb-1" style={{ color: 'var(--foreground)' }}>Opera</h3>
             <button onClick={() => handleDownload('opera')} className="w-full inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-br from-red-500 to-red-600 text-white text-xs font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
@@ -85,9 +79,7 @@ export function ExtensionPage() {
           {/* Brave */}
           <div className="text-center p-3 rounded-xl border-2 transition-all" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
             <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-gradient-to-br from-orange-600 to-orange-700 flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z"/>
-              </svg>
+              <Chrome className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-sm font-bold mb-1" style={{ color: 'var(--foreground)' }}>Brave</h3>
             <button onClick={() => handleDownload('brave')} className="w-full inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-br from-orange-600 to-orange-700 text-white text-xs font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
@@ -98,9 +90,7 @@ export function ExtensionPage() {
           {/* 360浏览器 */}
           <div className="text-center p-3 rounded-xl border-2 transition-all" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
             <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-              </svg>
+              <Chrome className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-sm font-bold mb-1" style={{ color: 'var(--foreground)' }}>360</h3>
             <button onClick={() => handleDownload('360')} className="w-full inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-br from-green-500 to-green-600 text-white text-xs font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
@@ -111,9 +101,7 @@ export function ExtensionPage() {
           {/* QQ浏览器 */}
           <div className="text-center p-3 rounded-xl border-2 transition-all" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
             <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-              </svg>
+              <Chrome className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-sm font-bold mb-1" style={{ color: 'var(--foreground)' }}>QQ</h3>
             <button onClick={() => handleDownload('qq')} className="w-full inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-br from-blue-400 to-blue-500 text-white text-xs font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
@@ -124,9 +112,7 @@ export function ExtensionPage() {
           {/* 搜狗浏览器 */}
           <div className="text-center p-3 rounded-xl border-2 transition-all" style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
             <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-              </svg>
+              <Chrome className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-sm font-bold mb-1" style={{ color: 'var(--foreground)' }}>搜狗</h3>
             <button onClick={() => handleDownload('sogou')} className="w-full inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-br from-orange-400 to-orange-500 text-white text-xs font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
