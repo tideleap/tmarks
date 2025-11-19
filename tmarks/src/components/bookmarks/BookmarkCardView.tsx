@@ -49,18 +49,24 @@ export function BookmarkCardView({
 
   return (
     <div ref={containerRef} className="w-full">
-      {/* CSS Grid 自动填充布局 - 让浏览器自动按行填充 */}
+      {/* 瀑布流布局 - 使用CSS columns */}
       {sortedBookmarks.length > 0 && (
         <div
           className="w-full"
           style={{
-            display: 'grid',
-            gridTemplateColumns: `repeat(auto-fill, minmax(280px, 1fr))`,
-            gap: '1rem'
+            columnCount: 'auto',
+            columnWidth: '280px',
+            columnGap: '1rem'
           } as React.CSSProperties}
         >
           {sortedBookmarks.map((bookmark) => (
-            <div key={bookmark.id}>
+            <div 
+              key={bookmark.id}
+              style={{
+                breakInside: 'avoid',
+                marginBottom: '1rem'
+              }}
+            >
               <BookmarkCard
                 bookmark={bookmark}
                 onEdit={onEdit ? () => onEdit(bookmark) : undefined}
