@@ -21,14 +21,14 @@ export function EmptyState({ isSearching, searchQuery }: EmptyStateProps) {
   }
 
   return (
-    <div className="text-center py-16">
+    <div className="text-center py-16 w-full">
       <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
         <Layers className="w-12 h-12 text-primary" />
       </div>
       <h3 className="text-2xl font-bold text-foreground mb-3">
         还没有标签页组
       </h3>
-      <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+      <p className="text-muted-foreground mb-6">
         使用浏览器扩展收集标签页，或者在这里创建新的标签页组来开始管理您的标签页
       </p>
       <div className="flex items-center justify-center gap-4">

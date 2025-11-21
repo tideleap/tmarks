@@ -172,6 +172,7 @@ function BookmarkCard({
   const [imageType, setImageType] = useState<ImageType>('unknown')
   const [coverImageError, setCoverImageError] = useState(false)
   const [faviconError, setFaviconError] = useState(false)
+  const [googleFaviconIsDefault, setGoogleFaviconIsDefault] = useState(false)
   const recordClick = useRecordClick()
   const { data: preferences } = usePreferences()
   const defaultIcon = preferences?.default_bookmark_icon || 'bookmark'
@@ -188,13 +189,24 @@ function BookmarkCard({
 
   const googleFaviconUrl = getFaviconUrl(bookmark.url)
 
-  // 决定显示什么图片 - 三级回退策略
+  // 检测 Google Favicon 是否为默认灰色地球图标
+  const checkIfGoogleDefaultIcon = (img: HTMLImageElement) => {
+    // Google 的默认图标特征：
+    // 1. 图片很小（通常是 16x16 或更小）
+    // 2. 可以通过加载后检查图片尺寸来判断
+    if (img.naturalWidth <= 16 && img.naturalHeight <= 16) {
+      setGoogleFaviconIsDefault(true)
+    }
+  }
+
+  // 决定显示什么图片 - 改进的回退策略
   // 1. cover_image (封面图)
   // 2. favicon (网站图标，从插件获取)
-  // 3. Google Favicon API (最终回退)
+  // 3. Google Favicon API (但跳过默认灰色地球)
+  // 4. 用户自定义的 SVG 图标
   const hasCoverImage = bookmark.cover_image && bookmark.cover_image.trim() !== '' && !coverImageError
   const hasFavicon = !hasCoverImage && bookmark.favicon && bookmark.favicon.trim() !== '' && !faviconError
-  const shouldShowGoogleFavicon = !hasCoverImage && !hasFavicon && googleFaviconUrl && !faviconError
+  const shouldShowGoogleFavicon = !hasCoverImage && !hasFavicon && googleFaviconUrl && !faviconError && !googleFaviconIsDefault
   const shouldShowImageArea = hasCoverImage || hasFavicon || shouldShowGoogleFavicon
 
   const handleVisit = () => {
@@ -305,6 +317,10 @@ function BookmarkCard({
                 src={googleFaviconUrl}
                 alt={bookmark.title}
                 className="w-full h-full object-contain"
+                onLoad={(e) => {
+                  const img = e.target as HTMLImageElement
+                  checkIfGoogleDefaultIcon(img)
+                }}
                 onError={() => setFaviconError(true)}
               />
             </div>

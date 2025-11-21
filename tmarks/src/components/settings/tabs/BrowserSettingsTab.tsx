@@ -1,9 +1,7 @@
-import { Chrome, Shield, ExternalLink, Download, Info } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Shield, Download, Info, Chrome, ExternalLink } from 'lucide-react'
 import { InfoBox } from '../InfoBox'
 
 export function BrowserSettingsTab() {
-  const navigate = useNavigate()
 
   const handleDownload = (browser: 'chrome' | 'firefox' | 'edge' | 'opera' | 'brave' | '360' | 'qq' | 'sogou') => {
     const link = document.createElement('a')
@@ -14,55 +12,116 @@ export function BrowserSettingsTab() {
     document.body.removeChild(link)
   }
 
+  // 浏览器图标组件
+  const BrowserIcon = ({ browser, className }: { browser: string; className?: string }) => {
+    const baseClass = className || 'w-8 h-8'
+    
+    switch (browser) {
+      case 'chrome':
+        return (
+          <svg className={baseClass} viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" className="fill-primary"/>
+            <circle cx="12" cy="12" r="6" className="fill-background"/>
+            <circle cx="12" cy="12" r="4" className="fill-primary"/>
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="none" className="stroke-primary" strokeWidth="0.5"/>
+          </svg>
+        )
+      case 'edge':
+        return (
+          <svg className={baseClass} viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" className="fill-primary"/>
+            <path d="M12 6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6" className="fill-primary/70"/>
+          </svg>
+        )
+      case 'firefox':
+        return (
+          <svg className={baseClass} viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" className="fill-primary"/>
+            <path d="M12 4c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8" className="fill-primary/80"/>
+            <circle cx="12" cy="12" r="4" className="fill-primary/60"/>
+          </svg>
+        )
+      case 'brave':
+        return (
+          <svg className={baseClass} viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L3 7v5c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" className="fill-primary"/>
+            <path d="M12 6l-4 3v3c0 2.76 1.92 5.37 4 6 2.08-.63 4-3.24 4-6V9l-4-3z" className="fill-background"/>
+          </svg>
+        )
+      case 'opera':
+        return (
+          <svg className={baseClass} viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" className="fill-primary"/>
+            <ellipse cx="12" cy="12" rx="4" ry="7" className="fill-background"/>
+          </svg>
+        )
+      case '360':
+        return (
+          <svg className={baseClass} viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" className="fill-primary"/>
+            <path d="M12 4v16M4 12h16" className="stroke-background" strokeWidth="2"/>
+          </svg>
+        )
+      case 'qq':
+        return (
+          <svg className={baseClass} viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" className="fill-primary"/>
+            <circle cx="9" cy="10" r="1.5" className="fill-background"/>
+            <circle cx="15" cy="10" r="1.5" className="fill-background"/>
+            <path d="M8 14c0 2 1.79 3.5 4 3.5s4-1.5 4-3.5" className="stroke-background" strokeWidth="1.5" fill="none"/>
+          </svg>
+        )
+      case 'sogou':
+        return (
+          <svg className={baseClass} viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" className="fill-primary"/>
+            <text x="12" y="16" textAnchor="middle" className="fill-background" fontSize="10" fontWeight="bold">搜</text>
+          </svg>
+        )
+      default:
+        return <Chrome className={baseClass} />
+    }
+  }
+
   const browsers = [
-    { id: 'chrome', name: 'Chrome', icon: Chrome, color: 'text-blue-500' },
-    { id: 'edge', name: 'Edge', icon: Chrome, color: 'text-cyan-500' },
-    { id: 'firefox', name: 'Firefox', icon: Chrome, color: 'text-orange-500' },
-    { id: 'brave', name: 'Brave', icon: Chrome, color: 'text-orange-600' },
-    { id: 'opera', name: 'Opera', icon: Chrome, color: 'text-red-500' },
-    { id: '360', name: '360', icon: Chrome, color: 'text-green-500' },
-    { id: 'qq', name: 'QQ', icon: Chrome, color: 'text-blue-600' },
-    { id: 'sogou', name: '搜狗', icon: Chrome, color: 'text-purple-500' },
+    { id: 'chrome', name: 'Chrome', color: 'hover:bg-muted/50' },
+    { id: 'edge', name: 'Edge', color: 'hover:bg-muted/50' },
+    { id: 'firefox', name: 'Firefox', color: 'hover:bg-muted/50' },
+    { id: 'brave', name: 'Brave', color: 'hover:bg-muted/50' },
+    { id: 'opera', name: 'Opera', color: 'hover:bg-muted/50' },
+    { id: '360', name: '360', color: 'hover:bg-muted/50' },
+    { id: 'qq', name: 'QQ', color: 'hover:bg-muted/50' },
+    { id: 'sogou', name: '搜狗', color: 'hover:bg-muted/50' },
   ]
 
   return (
     <div className="space-y-6">
       {/* 浏览器插件 */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">浏览器插件</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              安装浏览器扩展，快速保存和管理书签
-            </p>
-          </div>
-          <button
-            onClick={() => navigate('/extension')}
-            className="btn btn-secondary flex items-center gap-2"
-          >
-            <ExternalLink className="w-4 h-4" />
-            查看详情
-          </button>
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">浏览器插件下载</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            选择您的浏览器，下载对应的扩展程序
+          </p>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-          {browsers.map((browser) => {
-            const Icon = browser.icon
-            return (
-              <button
-                key={browser.id}
-                onClick={() => handleDownload(browser.id as any)}
-                className="p-3 sm:p-4 rounded-xl border-2 border-border hover:border-primary/50 transition-all text-center group"
-              >
-                <Icon className={`w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-1 sm:mb-2 ${browser.color}`} />
-                <div className="text-xs sm:text-sm font-medium mb-0.5 sm:mb-1">{browser.name}</div>
-                <div className="flex items-center justify-center gap-1 text-[10px] sm:text-xs text-muted-foreground group-hover:text-primary">
-                  <Download className="w-3 h-3" />
-                  点击下载
-                </div>
-              </button>
-            )
-          })}
+          {browsers.map((browser) => (
+            <button
+              key={browser.id}
+              onClick={() => handleDownload(browser.id as any)}
+              className={`p-3 sm:p-4 rounded-xl border-2 border-border hover:border-primary/50 transition-all text-center group ${browser.color}`}
+            >
+              <div className="mx-auto mb-1 sm:mb-2 flex justify-center">
+                <BrowserIcon browser={browser.id} className="w-8 h-8 sm:w-10 sm:h-10" />
+              </div>
+              <div className="text-xs sm:text-sm font-medium mb-0.5 sm:mb-1">{browser.name}</div>
+              <div className="flex items-center justify-center gap-1 text-[10px] sm:text-xs text-muted-foreground group-hover:text-primary">
+                <Download className="w-3 h-3" />
+                点击下载
+              </div>
+            </button>
+          ))}
         </div>
 
         <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">

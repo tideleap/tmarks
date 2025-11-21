@@ -79,6 +79,21 @@ export const bookmarksService = {
   },
 
   /**
+   * 获取书签统计数据
+   */
+  async getStatistics(params: {
+    granularity: 'day' | 'week' | 'month' | 'year'
+    startDate: string
+    endDate: string
+  }) {
+    const { granularity, startDate, endDate } = params
+    const response = await apiClient.get(
+      `/v1/bookmarks/statistics?granularity=${granularity}&start_date=${startDate}&end_date=${endDate}`
+    )
+    return response.data
+  },
+
+  /**
    * 检查 URL 是否已存在
    */
   async checkUrlExists(url: string) {

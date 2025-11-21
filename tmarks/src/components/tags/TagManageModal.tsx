@@ -99,8 +99,8 @@ export function TagManageModal({ tags, onClose }: TagManageModalProps) {
         onClick={onClose}
       />
 
-      {/* 模态框 */}
-      <div className="relative card rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col border border-border animate-scale-in" style={{padding: 0}}>
+      {/* 模态框 - 黄金比例宽度，高度为原来的 4/5 */}
+      <div className="relative card rounded-2xl shadow-2xl w-full max-h-[68vh] flex flex-col border border-border animate-scale-in" style={{padding: 0, maxWidth: '1200px'}}>
           {/* 标题栏 */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <div className="flex items-center gap-2.5">

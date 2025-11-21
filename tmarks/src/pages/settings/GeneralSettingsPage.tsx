@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Save, RotateCcw, Settings, Zap, Palette, Chrome, Key, Share2, Database } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Save, RotateCcw, Settings, Zap, Palette, Chrome, Key, Share2, Database, LogOut } from 'lucide-react'
 import { usePreferences, useUpdatePreferences } from '@/hooks/usePreferences'
+import { useAuthStore } from '@/stores/authStore'
 import { useToastStore } from '@/stores/toastStore'
 import type { UserPreferences } from '@/lib/types'
 import { SettingsTabs } from '@/components/settings/SettingsTabs'
@@ -13,8 +15,10 @@ import { ShareSettingsTab } from '@/components/settings/tabs/ShareSettingsTab'
 import { DataSettingsTab } from '@/components/settings/tabs/DataSettingsTab'
 
 export function GeneralSettingsPage() {
+  const navigate = useNavigate()
   const { data: preferences, isLoading } = usePreferences()
   const updatePreferences = useUpdatePreferences()
+  const { user, logout } = useAuthStore()
   const { addToast } = useToastStore()
 
   const [activeTab, setActiveTab] = useState('basic')
@@ -63,6 +67,15 @@ export function GeneralSettingsPage() {
     }
   }
 
+  const handleLogout = async () => {
+    try {
+      await logout()
+      navigate('/login')
+    } catch {
+      addToast('error', '登出失败')
+    }
+  }
+
   if (isLoading || !localPreferences) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -88,10 +101,20 @@ export function GeneralSettingsPage() {
         <div className="flex-1 min-w-0">
           <h1 className="text-xl sm:text-2xl font-bold text-foreground">通用设置</h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            {user?.username && <span className="font-medium text-foreground">{user.username}</span>}
+            {user?.username && ' · '}
             配置应用的通用行为和用户体验
           </p>
         </div>
         <div className="flex gap-2 flex-shrink-0">
+          <button
+            onClick={handleLogout}
+            className="btn btn-ghost btn-sm sm:btn flex items-center gap-2 text-error hover:bg-error/10"
+            title="登出账号"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">登出</span>
+          </button>
           <button
             onClick={handleReset}
             className="btn btn-secondary btn-sm sm:btn flex items-center gap-2"
@@ -115,10 +138,7 @@ export function GeneralSettingsPage() {
       <div className="card p-3 sm:p-6">
         <SettingsTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab}>
           {activeTab === 'basic' && (
-            <BasicSettingsTab
-              preferences={localPreferences}
-              onUpdate={handleUpdate}
-            />
+            <BasicSettingsTab />
           )}
 
           {activeTab === 'automation' && (

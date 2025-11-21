@@ -45,4 +45,11 @@ export const tagsService = {
   async deleteTag(id: string) {
     await apiClient.delete(`/tags/${id}`)
   },
+
+  /**
+   * 增加标签点击计数
+   */
+  async incrementClick(id: string) {
+    await apiClient.patch(`/tags/${id}/click`, {})
+  },
 }

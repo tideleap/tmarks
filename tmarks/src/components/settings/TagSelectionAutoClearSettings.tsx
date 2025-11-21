@@ -26,7 +26,7 @@ export function TagSelectionAutoClearSettings({
             type="checkbox"
             checked={enabled}
             onChange={(e) => onEnabledChange(e.target.checked)}
-            className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+            className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
           />
           <span className="text-sm text-foreground">启用标签选中自动清空</span>
         </label>
@@ -45,7 +45,7 @@ export function TagSelectionAutoClearSettings({
               step="10"
               value={seconds}
               onChange={(e) => onSecondsChange(Number(e.target.value))}
-              className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer"
             />
             <input
               type="number"

@@ -10,7 +10,7 @@ import { ThemeToggle } from '@/components/common/ThemeToggle'
 import { ColorThemeSelector } from '@/components/common/ColorThemeSelector'
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
 
-export function AppShell() {
+export function FullScreenAppShell() {
   const { theme, colorTheme } = useThemeStore()
   const navigate = useNavigate()
   const location = useLocation()
@@ -22,7 +22,7 @@ export function AppShell() {
   // 切换按钮点击处理
   const handleToggleView = () => {
     if (isOnTabGroupsPage) {
-      navigate('/bookmarks')
+      navigate('/')
     } else {
       navigate('/tab')
     }
@@ -89,11 +89,9 @@ export function AppShell() {
         </div>
       </header>
 
-      {/* 主内容区 - 黄金比例容器 */}
-      <main className="w-full pb-16 sm:pb-6 pt-3 sm:pt-6 flex flex-col min-h-0 flex-1">
-        <div className="mx-auto w-full px-3 sm:px-6" style={{ maxWidth: '1200px' }}>
-          <Outlet />
-        </div>
+      {/* 主内容区 - 全屏无 padding */}
+      <main className="w-full pb-16 sm:pb-0 flex flex-col min-h-0 flex-1">
+        <Outlet />
       </main>
 
       {/* 移动端底部导航 */}
