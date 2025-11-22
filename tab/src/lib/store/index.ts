@@ -63,10 +63,16 @@ interface AppState {
   loadConfig: () => Promise<void>;
   saveConfig: (config: Partial<StorageConfig>) => Promise<void>;
 
+  // Bookmark exists dialog
+  existingBookmark: any | null;
+  setExistingBookmark: (bookmark: any | null) => void;
+
   // Actions
   extractPageInfo: () => Promise<void>;
   recommendTags: () => Promise<void>;
   saveBookmark: () => Promise<void>;
+  updateExistingBookmarkTags: (bookmarkId: string, tags: string[]) => Promise<void>;
+  createSnapshotForBookmark: (bookmarkId: string) => Promise<void>;
   syncCache: () => Promise<void>;
 }
 
@@ -88,6 +94,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   isPublic: true,
   includeThumbnail: false,
   createSnapshot: false,
+  existingBookmark: null,
+
+  setExistingBookmark: (bookmark) => set({ existingBookmark: bookmark }),
   config: null,
 
   // Setters
@@ -364,13 +373,23 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       // Check if save was successful
       if (!result.success) {
-      set({
-        error:
-          `${result.message || result.error || '保存失败'}（耗时 ${formattedSeconds}s）`,
+        set({
+          error: `${result.message || result.error || '保存失败'}（耗时 ${formattedSeconds}s）`,
           isLoading: false,
           isSaving: false,
-        lastSaveDurationMs: elapsedMs
-      });
+          lastSaveDurationMs: elapsedMs
+        });
+        return;
+      }
+
+      // Check if bookmark already exists
+      if (result.existingBookmark) {
+        set({
+          existingBookmark: result.existingBookmark,
+          isLoading: false,
+          isSaving: false,
+          lastSaveDurationMs: elapsedMs
+        });
         return;
       }
 
@@ -428,6 +447,99 @@ export const useAppStore = create<AppState>((set, get) => ({
         isLoading: false,
         isSaving: false,
         lastSaveDurationMs: elapsedMs
+      });
+    }
+  },
+
+  updateExistingBookmarkTags: async (bookmarkId: string, tags: string[]) => {
+    try {
+      set({ isSaving: true, error: null });
+
+      console.log('[Store] 更新书签标签:', bookmarkId, tags);
+
+      // 发送更新请求到 background
+      const result = await sendMessage({
+        type: 'UPDATE_BOOKMARK_TAGS',
+        payload: {
+          bookmarkId,
+          tags  // 直接传标签名称，后端会自动处理
+        }
+      });
+
+      if (!result.success) {
+        throw new Error(result.error || '更新标签失败');
+      }
+
+      set({
+        successMessage: '✅ 标签已更新',
+        isSaving: false,
+        existingBookmark: null
+      });
+
+      chrome.notifications.create({
+        type: 'basic',
+        iconUrl: '/icons/icon-128.png',
+        title: 'AI 书签助手',
+        message: '标签已成功更新'
+      });
+
+      setTimeout(() => {
+        set({ successMessage: null });
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to update tags:', error);
+      set({
+        error: error instanceof Error ? error.message : 'Failed to update tags',
+        isSaving: false
+      });
+    }
+  },
+
+  createSnapshotForBookmark: async (bookmarkId: string) => {
+    const { currentPage } = get();
+    if (!currentPage) return;
+
+    try {
+      set({ isSaving: true, error: null });
+
+      // Get the current tab's HTML content
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab && tab.id) {
+        const result = await sendMessage({
+          type: 'CREATE_SNAPSHOT',
+          payload: {
+            bookmarkId,
+            title: currentPage.title,
+            url: currentPage.url
+          }
+        });
+
+        if (result.success) {
+          set({
+            successMessage: '快照已创建',
+            isSaving: false,
+            existingBookmark: null
+          });
+
+          chrome.notifications.create({
+            type: 'basic',
+            iconUrl: '/icons/icon-128.png',
+            title: 'AI 书签助手',
+            message: '快照已成功创建'
+          });
+        } else {
+          throw new Error(result.error || '创建快照失败');
+        }
+      }
+
+      setTimeout(() => {
+        set({ successMessage: null });
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to create snapshot:', error);
+      set({
+        error: error instanceof Error ? error.message : 'Failed to create snapshot',
+        isSaving: false
       });
     }
   },

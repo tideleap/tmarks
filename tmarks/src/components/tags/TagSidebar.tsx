@@ -183,8 +183,8 @@ export function TagSidebar({
                 onClick={() => setShowCreateForm(!showCreateForm)}
                 className={`btn btn-sm p-2 flex-shrink-0 ${
                   showCreateForm
-                    ? 'btn-ghost hover:bg-error/10 hover:text-error'
-                    : 'btn-primary'
+                    ? 'btn-ghost'
+                    : 'btn-ghost'
                 }`}
                 title={showCreateForm ? '取消' : '新建标签'}
               >

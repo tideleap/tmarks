@@ -140,77 +140,18 @@ export class BookmarkAPIClient {
   /**
    * Add a new bookmark
    */
-  async addBookmark(bookmark: BookmarkInput): Promise<{ id: string; isExisting?: boolean }> {
+  async addBookmark(bookmark: BookmarkInput): Promise<{ id: string; isExisting?: boolean; existingBookmark?: any }> {
     const client = await this.ensureClient();
 
     try {
-      // Resolve tag names to tag IDs (create new tags if needed)
-      let tagIds: string[] = [];
-      if (bookmark.tags && bookmark.tags.length > 0) {
-        console.log('[BookmarkAPI] 处理标签:', bookmark.tags);
-
-        // Get existing tags from the API
-        const tagsResponse = await client.tags.getTags();
-        const existingTags = tagsResponse.data.tags;
-
-        console.log('[BookmarkAPI] 已有标签数量:', existingTags.length);
-
-        // For each tag, find or create it
-        for (const tagName of bookmark.tags) {
-          const existingTag = existingTags.find(
-            t => t.name.toLowerCase() === tagName.toLowerCase()
-          );
-
-          if (existingTag) {
-            // Tag exists, use its ID
-            console.log(`[BookmarkAPI] 标签 "${tagName}" 已存在, ID: ${existingTag.id}`);
-            tagIds.push(existingTag.id);
-          } else {
-            // Tag doesn't exist, create it
-            console.log(`[BookmarkAPI] 标签 "${tagName}" 不存在，正在创建...`);
-            try {
-              const newTagResponse = await client.tags.createTag({
-                name: tagName
-              });
-              const newTagId = newTagResponse.data.tag.id;
-              console.log(`[BookmarkAPI] 标签 "${tagName}" 创建成功, ID: ${newTagId}`);
-              tagIds.push(newTagId);
-
-              // Add to existingTags array to avoid duplicate creation
-              existingTags.push(newTagResponse.data.tag);
-            } catch (tagError: any) {
-              // If tag creation fails due to duplicate (race condition), try to find it again
-              if (tagError.code === 'DUPLICATE_TAG') {
-                console.log(`[BookmarkAPI] 标签 "${tagName}" 已被并发创建，重新查找...`);
-                const retryTagsResponse = await client.tags.getTags();
-                const retryTag = retryTagsResponse.data.tags.find(
-                  t => t.name.toLowerCase() === tagName.toLowerCase()
-                );
-                if (retryTag) {
-                  tagIds.push(retryTag.id);
-                  console.log(`[BookmarkAPI] 重新找到标签 "${tagName}", ID: ${retryTag.id}`);
-                } else {
-                  console.error(`[BookmarkAPI] 无法创建或找到标签 "${tagName}"`);
-                  throw tagError;
-                }
-              } else {
-                console.error(`[BookmarkAPI] 创建标签 "${tagName}" 失败:`, tagError);
-                throw tagError;
-              }
-            }
-          }
-        }
-
-        console.log('[BookmarkAPI] 最终标签 IDs:', tagIds);
-      }
-
+      // 直接传标签名称，让后端自动创建或链接标签
       const response = await client.bookmarks.createBookmark({
         title: bookmark.title,
         url: bookmark.url,
         description: bookmark.description,
         cover_image: bookmark.thumbnail,
         favicon: bookmark.favicon,
-        tag_ids: tagIds,
+        tags: bookmark.tags,  // 直接传标签名称数组
         is_public: bookmark.isPublic ?? false
       });
 
@@ -225,18 +166,50 @@ export class BookmarkAPIClient {
       const isExisting = response.meta?.code === 'BOOKMARK_EXISTS';
       if (isExisting) {
         console.log('[BookmarkAPI] 书签已存在, ID:', response.data.bookmark.id);
+        // Return the full bookmark data for the dialog
+        return { 
+          id: response.data.bookmark.id,
+          isExisting,
+          existingBookmark: response.data.bookmark
+        };
       } else {
         console.log('[BookmarkAPI] 书签创建成功, ID:', response.data.bookmark.id);
+        return { 
+          id: response.data.bookmark.id,
+          isExisting 
+        };
       }
+    } catch (error: any) {
+      // 如果是 TMarksAPIError，提取更友好的错误信息
+      const errorMessage = error.message || 'Unknown error';
+      
+      throw new AppError(
+        'BOOKMARK_SITE_ERROR' as ErrorCode,
+        `Failed to add bookmark: ${errorMessage}`,
+        { originalError: error }
+      );
+    }
+  }
 
-      return { 
-        id: response.data.bookmark.id,
-        isExisting 
-      };
+  /**
+   * Update bookmark tags
+   */
+  async updateBookmarkTags(bookmarkId: string, tags: string[]): Promise<void> {
+    const client = await this.ensureClient();
+
+    try {
+      console.log('[BookmarkAPI] Updating tags for bookmark:', bookmarkId, tags);
+
+      // 调用更新 API，直接传标签名称
+      await client.bookmarks.updateBookmark(bookmarkId, {
+        tags  // 后端会自动处理标签创建和链接
+      });
+
+      console.log('[BookmarkAPI] Tags updated successfully');
     } catch (error: any) {
       throw new AppError(
         'BOOKMARK_SITE_ERROR' as ErrorCode,
-        `Failed to add bookmark: ${error.message}`,
+        `Failed to update tags: ${error.message}`,
         { originalError: error }
       );
     }

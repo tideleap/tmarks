@@ -17,6 +17,18 @@ export class BookmarkService {
       bookmarkId = result.id;
       isExisting = result.isExisting || false;
 
+      // If bookmark exists, return it for the dialog
+      if (isExisting && result.existingBookmark) {
+        return {
+          success: true,
+          existingBookmark: {
+            ...result.existingBookmark,
+            needsDialog: true
+          },
+          message: '书签已存在'
+        };
+      }
+
       // 2. Save to local cache (only for new bookmarks)
       if (!isExisting) {
         await db.bookmarks.add({
@@ -55,9 +67,10 @@ export class BookmarkService {
           offline: true,
           message: '已暂存,将在网络恢复后同步'
         };
-      } else {
-        throw error;
       }
+      
+      // For other errors, throw
+      throw error;
     }
 
     // 5. Create snapshot if requested (works for both new and existing bookmarks)

@@ -273,13 +273,21 @@ async function handleMessage(
     }
 
     case 'SAVE_BOOKMARK': {
-      const bookmark = message.payload;
-      const result = await bookmarkService.saveBookmark(bookmark);
+      try {
+        const bookmark = message.payload;
+        const result = await bookmarkService.saveBookmark(bookmark);
 
-      return {
-        success: true,
-        data: result
-      };
+        return {
+          success: true,
+          data: result
+        };
+      } catch (error) {
+        console.error('[Background] Failed to save bookmark:', error);
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to save bookmark'
+        };
+      }
     }
 
     case 'SYNC_CACHE': {
@@ -304,6 +312,64 @@ async function handleMessage(
         return {
           success: false,
           error: error instanceof Error ? error.message : 'Failed to load tags'
+        };
+      }
+    }
+
+    case 'UPDATE_BOOKMARK_TAGS': {
+      try {
+        const { bookmarkId, tags } = message.payload;
+        
+        console.log('[Background] Updating bookmark tags:', bookmarkId, tags);
+        
+        // 调用 API 更新标签
+        await bookmarkAPI.updateBookmarkTags(bookmarkId, tags);
+
+        return {
+          success: true,
+          data: { message: 'Tags updated successfully' }
+        };
+      } catch (error) {
+        console.error('[Background] Failed to update tags:', error);
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to update tags'
+        };
+      }
+    }
+
+    case 'CREATE_SNAPSHOT': {
+      try {
+        const { bookmarkId, title, url } = message.payload;
+        
+        // Get the current tab's HTML content
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab || !tab.id) {
+          throw new Error('No active tab found');
+        }
+
+        // Import snapshot service dynamically
+        const { capturePageSnapshot } = await import('../lib/services/snapshot-service');
+        
+        // Capture page HTML
+        const htmlContent = await capturePageSnapshot(tab.id);
+        
+        // Create snapshot via API
+        await bookmarkAPI.createSnapshot(bookmarkId, {
+          html_content: htmlContent,
+          title,
+          url
+        });
+
+        return {
+          success: true,
+          data: { message: 'Snapshot created successfully' }
+        };
+      } catch (error) {
+        console.error('[Background] Failed to create snapshot:', error);
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to create snapshot'
         };
       }
     }

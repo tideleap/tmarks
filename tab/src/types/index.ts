@@ -190,6 +190,16 @@ export interface SyncResult {
 export interface SaveResult {
   success: boolean;
   bookmarkId?: string;
+  existingBookmark?: {
+    id: string;
+    title: string;
+    url: string;
+    tags: Array<{ id: string; name: string; color: string | null }>;
+    has_snapshot?: boolean;
+    snapshot_count?: number;
+    created_at: string;
+    needsDialog?: boolean;
+  };
   offline?: boolean;
   message?: string;
   error?: string;
@@ -230,21 +240,27 @@ export class AppError extends Error {
 export type MessageType =
   | 'EXTRACT_PAGE_INFO'
   | 'RECOMMEND_TAGS'
+  | 'CREATE_SNAPSHOT'
   | 'SAVE_BOOKMARK'
   | 'SYNC_CACHE'
   | 'GET_CONFIG'
   | 'GET_EXISTING_TAGS'
+  | 'UPDATE_BOOKMARK_TAGS'
+  | 'CAPTURE_PAGE'
   | 'PING';
 
 export interface Message<T = any> {
   type: MessageType;
   payload?: T;
+  options?: any; // For CAPTURE_PAGE options
 }
 
 export interface MessageResponse<T = any> {
   success: boolean;
   data?: T;
   error?: string;
+  html?: string; // For CAPTURE_PAGE response
+  size?: number; // For CAPTURE_PAGE response
 }
 
 // ============ Tab Groups (OneTab-like feature) ============

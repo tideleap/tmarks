@@ -39,6 +39,10 @@ interface CreateSnapshotRequest {
   force?: boolean
 }
 
+// 配置常量
+const MAX_SNAPSHOT_SIZE = 50 * 1024 * 1024 // 50MB
+const COMPRESSION_THRESHOLD = 1 * 1024 * 1024 // 1MB - 超过此大小自动压缩
+
 // GET /api/v1/bookmarks/:id/snapshots - 获取快照列表
 export const onRequestGet: PagesFunction<Env, 'id', AuthContext>[] = [
   requireAuth,
@@ -97,6 +101,14 @@ export const onRequestPost: PagesFunction<Env, 'id', AuthContext>[] = [
         return badRequest('Missing required fields')
       }
 
+      // 检查文件大小
+      const originalSize = new Blob([html_content]).size
+      if (originalSize > MAX_SNAPSHOT_SIZE) {
+        return badRequest(
+          `Snapshot too large (${(originalSize / 1024 / 1024).toFixed(2)}MB). Maximum size is ${MAX_SNAPSHOT_SIZE / 1024 / 1024}MB.`
+        )
+      }
+
       const db = context.env.DB
       const bucket = context.env.SNAPSHOTS_BUCKET
 
@@ -151,20 +163,74 @@ export const onRequestPost: PagesFunction<Env, 'id', AuthContext>[] = [
       const timestamp = Date.now()
       const r2Key = `${userId}/${bookmarkId}/snapshot-${timestamp}-v${version}.html`
 
+      // 准备上传内容（自动压缩大文件）
+      let uploadContent: string | Uint8Array = html_content
+      let contentEncoding: string | undefined = undefined
+      let fileSize = originalSize
+
+      if (originalSize > COMPRESSION_THRESHOLD) {
+        try {
+          // 使用 gzip 压缩
+          const encoder = new TextEncoder()
+          const data = encoder.encode(html_content)
+          
+          const stream = new ReadableStream({
+            start(controller) {
+              controller.enqueue(data)
+              controller.close()
+            }
+          })
+          
+          const compressedStream = stream.pipeThrough(new CompressionStream('gzip'))
+          
+          const chunks: Uint8Array[] = []
+          const reader = compressedStream.getReader()
+          
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            chunks.push(value)
+          }
+          
+          // 合并所有分块
+          const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
+          const compressed = new Uint8Array(totalLength)
+          let offset = 0
+          for (const chunk of chunks) {
+            compressed.set(chunk, offset)
+            offset += chunk.length
+          }
+          
+          uploadContent = compressed
+          contentEncoding = 'gzip'
+          fileSize = compressed.length
+          
+          const compressionRatio = ((1 - fileSize / originalSize) * 100).toFixed(1)
+          console.log(
+            `[Snapshot] Compressed: ${(originalSize / 1024).toFixed(1)}KB -> ${(fileSize / 1024).toFixed(1)}KB (${compressionRatio}% reduction)`
+          )
+        } catch (compressionError) {
+          console.error('[Snapshot] Compression failed, uploading uncompressed:', compressionError)
+          // 压缩失败，使用原始内容
+          uploadContent = html_content
+        }
+      }
+
       // 上传到 R2
-      await bucket.put(r2Key, html_content, {
+      await bucket.put(r2Key, uploadContent, {
         httpMetadata: {
           contentType: 'text/html; charset=utf-8',
+          contentEncoding,
         },
         customMetadata: {
           userId,
           bookmarkId,
           version: version.toString(),
           title,
+          originalSize: originalSize.toString(),
+          compressed: contentEncoding ? 'true' : 'false',
         },
       })
-
-      const fileSize = new Blob([html_content]).size
       const snapshotId = generateNanoId()
       const now = new Date().toISOString()
 

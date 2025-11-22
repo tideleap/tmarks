@@ -1,50 +1,83 @@
 /**
  * Snapshot Service
- * 使用 SingleFile 捕获完整网页内容
+ * 使用 SingleFile 捕获完整网页内容（包含内联资源）
  */
+
+export interface SnapshotOptions {
+  inlineCSS?: boolean
+  inlineImages?: boolean
+  inlineFonts?: boolean
+  removeScripts?: boolean
+  removeHiddenElements?: boolean
+  maxImageSize?: number
+  timeout?: number
+}
+
+const DEFAULT_SNAPSHOT_OPTIONS: SnapshotOptions = {
+  inlineCSS: true,
+  inlineImages: true,
+  inlineFonts: false,
+  removeScripts: true,
+  removeHiddenElements: false,
+  maxImageSize: 5 * 1024 * 1024, // 5MB
+  timeout: 30000, // 30秒
+}
 
 /**
- * 捕获当前标签页的完整 HTML
- * 使用浏览器的 scripting API 注入 SingleFile 脚本
+ * 捕获当前标签页的完整 HTML（使用 SingleFile 方式）
+ * 包含内联的 CSS、图片等资源
  */
-export async function capturePageSnapshot(tabId: number): Promise<string> {
+export async function capturePageSnapshot(
+  tabId: number,
+  options: Partial<SnapshotOptions> = {}
+): Promise<string> {
+  const finalOptions = { ...DEFAULT_SNAPSHOT_OPTIONS, ...options }
+  
   try {
-    // 方案1: 使用简单的 DOM 序列化（临时方案）
-    // TODO: 集成 SingleFile 以获取完整的网页内容（包括样式、图片等）
+    console.log('[SnapshotService] Starting capture with SingleFile...')
     
-    const results = await chrome.scripting.executeScript({
-      target: { tabId },
-      func: () => {
-        // 获取完整的 HTML
-        return document.documentElement.outerHTML;
-      }
-    });
+    // 发送消息到 content script 进行捕获
+    const response = await chrome.tabs.sendMessage(tabId, {
+      type: 'CAPTURE_PAGE',
+      options: finalOptions
+    })
 
-    if (results && results[0] && results[0].result) {
-      return results[0].result as string;
+    if (response.success) {
+      const sizeKB = (response.size / 1024).toFixed(1)
+      console.log(`[SnapshotService] Capture successful: ${sizeKB}KB`)
+      return response.html
+    } else {
+      throw new Error(response.error || 'Capture failed')
     }
-
-    throw new Error('Failed to capture page content');
   } catch (error) {
-    console.error('[SnapshotService] Failed to capture page:', error);
-    throw error;
+    console.error('[SnapshotService] SingleFile capture failed:', error)
+    
+    // 降级到简单方案
+    console.log('[SnapshotService] Falling back to simple capture')
+    return capturePageSimple(tabId)
   }
 }
 
 /**
- * 使用 SingleFile 捕获完整网页
- * 这个函数需要 SingleFile 库的支持
- * 
- * 集成步骤：
- * 1. 安装 single-file-core: pnpm add single-file-core
- * 2. 在 content script 中注入 SingleFile
- * 3. 使用 SingleFile API 捕获页面
+ * 简单的降级方案（不内联资源）
  */
-export async function capturePageWithSingleFile(_tabId: number): Promise<string> {
-  // TODO: 实现 SingleFile 集成
-  // 参考: https://github.com/gildas-lormeau/SingleFile
-  
-  throw new Error('SingleFile integration not implemented yet');
+async function capturePageSimple(tabId: number): Promise<string> {
+  try {
+    const results = await chrome.scripting.executeScript({
+      target: { tabId },
+      func: () => document.documentElement.outerHTML
+    })
+
+    if (results && results[0] && results[0].result) {
+      console.log('[SnapshotService] Simple capture successful')
+      return results[0].result as string
+    }
+
+    throw new Error('Failed to capture page content')
+  } catch (error) {
+    console.error('[SnapshotService] Simple capture failed:', error)
+    throw error
+  }
 }
 
 /**

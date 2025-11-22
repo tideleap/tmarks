@@ -18,7 +18,8 @@ interface CreateBookmarkRequest {
   url: string
   description?: string
   cover_image?: string
-  tag_ids?: string[]
+  tag_ids?: string[]  // 兼容旧版：标签 ID 数组
+  tags?: string[]     // 新版：标签名称数组（推荐）
   is_pinned?: boolean
   is_archived?: boolean
   is_public?: boolean
@@ -211,7 +212,38 @@ export const onRequestPost: PagesFunction<Env, RouteParams, ApiKeyAuthContext>[]
 
       if (existing) {
         if (!existing.deleted_at) {
-          return badRequest('Bookmark with this URL already exists')
+          // 返回现有书签信息，让前端可以为其创建快照
+          const bookmarkRow = await context.env.DB.prepare('SELECT * FROM bookmarks WHERE id = ?')
+            .bind(existing.id)
+            .first<BookmarkRow>()
+
+          const { results: tags } = await context.env.DB.prepare(
+            `SELECT t.id, t.name, t.color
+             FROM tags t
+             INNER JOIN bookmark_tags bt ON t.id = bt.tag_id
+             WHERE bt.bookmark_id = ?`
+          )
+            .bind(existing.id)
+            .all<{ id: string; name: string; color: string | null }>()
+
+          if (!bookmarkRow) {
+            return internalError('Failed to retrieve bookmark')
+          }
+
+          const bookmark = normalizeBookmark(bookmarkRow)
+
+          return success(
+            {
+              bookmark: {
+                ...bookmark,
+                tags: tags || [],
+              },
+            },
+            {
+              message: 'Bookmark already exists',
+              code: 'BOOKMARK_EXISTS',
+            }
+          )
         }
 
         // 恢复已删除的书签
@@ -261,8 +293,13 @@ export const onRequestPost: PagesFunction<Env, RouteParams, ApiKeyAuthContext>[]
           .run()
       }
 
-      // 关联标签
-      if (body.tag_ids && body.tag_ids.length > 0) {
+      // 处理标签（支持两种方式）
+      if (body.tags && body.tags.length > 0) {
+        // 新版：直接传标签名称，后端自动创建或链接
+        const { createOrLinkTags } = await import('../../lib/tags')
+        await createOrLinkTags(context.env.DB, bookmarkId, body.tags, userId)
+      } else if (body.tag_ids && body.tag_ids.length > 0) {
+        // 兼容旧版：传标签 ID
         for (const tagId of body.tag_ids) {
           await context.env.DB.prepare(
             'INSERT INTO bookmark_tags (bookmark_id, tag_id, user_id, created_at) VALUES (?, ?, ?, ?)'
@@ -284,7 +321,7 @@ export const onRequestPost: PagesFunction<Env, RouteParams, ApiKeyAuthContext>[]
          WHERE bt.bookmark_id = ?`
       )
         .bind(bookmarkId)
-        .all<{ id: number; name: string; color: string | null }>()
+        .all<{ id: string; name: string; color: string | null }>()
 
       if (!bookmarkRow) {
         return internalError('Failed to load bookmark after creation')

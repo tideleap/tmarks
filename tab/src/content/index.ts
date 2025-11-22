@@ -446,6 +446,29 @@ if ((window as any).__AITMARKS_CONTENT_SCRIPT_LOADED__) {
         return true; // Keep message channel open for async response
       }
 
+      // SingleFile 页面捕获
+      if (message.type === 'CAPTURE_PAGE') {
+        (async () => {
+          try {
+            console.log('[ContentScript] Starting SingleFile capture...');
+            const { capturePage } = await import('./singlefile-capture');
+            const html = await capturePage(message.options || {});
+            const size = new Blob([html]).size;
+            
+            console.log(`[ContentScript] Capture successful: ${(size / 1024).toFixed(1)}KB`);
+            sendResponse({ success: true, html, size });
+          } catch (error) {
+            console.error('[ContentScript] Capture failed:', error);
+            sendResponse({
+              success: false,
+              error: error instanceof Error ? error.message : 'Unknown error'
+            });
+          }
+        })();
+        
+        return true; // Keep message channel open
+      }
+
       // 未知消息类型
       console.warn('[ContentScript] Unknown message type:', message.type);
       return false;

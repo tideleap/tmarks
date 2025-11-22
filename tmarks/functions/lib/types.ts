@@ -3,6 +3,7 @@ export interface Env {
   RATE_LIMIT_KV?: KVNamespace // Optional for development
   PUBLIC_SHARE_KV?: KVNamespace // Optional cache for public share pages
   CACHE_KV?: KVNamespace // Optional general cache
+  SNAPSHOTS_BUCKET?: R2Bucket // R2 bucket for bookmark snapshots
   ALLOW_REGISTRATION?: string
   JWT_SECRET: string
   ENCRYPTION_KEY: string

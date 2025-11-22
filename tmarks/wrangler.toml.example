@@ -10,7 +10,8 @@ pages_build_output_dir = ".deploy"
 # - D1 数据库：变量名 DB，选择数据库 tmarks-prod-db
 # - KV 命名空间：变量名 RATE_LIMIT_KV
 # - KV 命名空间：变量名 PUBLIC_SHARE_KV
-# - R2 存储桶：变量名 SNAPSHOTS，选择存储桶 tmarks-snapshots（用于网页快照）
+# - KV 命名空间：变量名 CACHE_KV（可选，用于通用缓存）
+# - R2 存储桶：变量名 SNAPSHOTS_BUCKET，选择存储桶 tmarks-snapshots（用于网页快照）
 #
 # 这样配置的好处：
 # 1. 不需要在代码中暴露资源 ID

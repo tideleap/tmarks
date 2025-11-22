@@ -5,6 +5,7 @@ import { PageInfoCard } from '@/components/PageInfoCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { SuccessMessage } from '@/components/SuccessMessage';
+import { BookmarkExistsDialog } from '@/components/BookmarkExistsDialog';
 import { ModeSelector } from './ModeSelector';
 import { TabCollectionView } from './TabCollectionView';
 
@@ -21,6 +22,7 @@ export function Popup() {
     isRecommending,
     error,
     successMessage,
+    existingBookmark,
     config,
     loadConfig,
     loadExistingTags,
@@ -37,6 +39,9 @@ export function Popup() {
     setIsPublic,
     createSnapshot,
     setCreateSnapshot,
+    setExistingBookmark,
+    updateExistingBookmarkTags,
+    createSnapshotForBookmark,
     lastRecommendationSource,
     lastSaveDurationMs
   } = useAppStore();
@@ -550,6 +555,25 @@ export function Popup() {
         </footer>
 
       </div>
+
+      {/* Bookmark Exists Dialog */}
+      {existingBookmark && existingBookmark.needsDialog && (
+        <BookmarkExistsDialog
+          bookmark={existingBookmark}
+          newTags={selectedTags}
+          onUpdateTags={(tags) => {
+            if (existingBookmark.id) {
+              updateExistingBookmarkTags(existingBookmark.id, tags);
+            }
+          }}
+          onCreateSnapshot={() => {
+            if (existingBookmark.id) {
+              createSnapshotForBookmark(existingBookmark.id);
+            }
+          }}
+          onCancel={() => setExistingBookmark(null)}
+        />
+      )}
     </div>
   );
 }

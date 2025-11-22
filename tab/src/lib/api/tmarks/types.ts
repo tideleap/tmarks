@@ -63,7 +63,8 @@ export interface CreateBookmarkInput {
   description?: string;
   cover_image?: string;
   favicon?: string;
-  tag_ids?: string[];
+  tag_ids?: string[];  // 兼容旧版：标签 ID 数组
+  tags?: string[];     // 新版：标签名称数组（推荐，后端自动创建或链接）
   is_public?: boolean;
   is_pinned?: boolean;
   is_archived?: boolean;
@@ -75,7 +76,8 @@ export interface UpdateBookmarkInput {
   description?: string;
   cover_image?: string;
   favicon?: string;
-  tag_ids?: string[];
+  tag_ids?: string[];  // 兼容旧版：标签 ID 数组
+  tags?: string[];     // 新版：标签名称数组（推荐，后端自动创建或链接）
   is_public?: boolean;
   is_pinned?: boolean;
   is_archived?: boolean;

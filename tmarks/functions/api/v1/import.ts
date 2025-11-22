@@ -24,6 +24,10 @@ interface ImportRequest {
   options?: Partial<ImportOptions>
 }
 
+// 配置常量
+const MAX_IMPORT_SIZE = 10 * 1024 * 1024 // 10MB
+const IMPORT_TIMEOUT = 5 * 60 * 1000 // 5分钟
+
 export const onRequestPost: PagesFunction<Env, RouteParams, AuthContext>[] = [
   requireAuth,
   async (context) => {
@@ -36,6 +40,19 @@ export const onRequestPost: PagesFunction<Env, RouteParams, AuthContext>[] = [
         return new Response(
           JSON.stringify({ error: 'Missing required fields: format and content' }),
           { status: 400, headers: { 'Content-Type': 'application/json' } }
+        )
+      }
+
+      // 检查文件大小
+      const contentSize = new Blob([content]).size
+      if (contentSize > MAX_IMPORT_SIZE) {
+        return new Response(
+          JSON.stringify({
+            error: 'File too large',
+            message: `Import file size (${(contentSize / 1024 / 1024).toFixed(2)}MB) exceeds maximum allowed size (${MAX_IMPORT_SIZE / 1024 / 1024}MB)`,
+            suggestion: 'Please split your import file into smaller chunks or contact support for assistance.'
+          }),
+          { status: 413, headers: { 'Content-Type': 'application/json' } }
         )
       }
 
@@ -58,13 +75,15 @@ export const onRequestPost: PagesFunction<Env, RouteParams, AuthContext>[] = [
         )
       }
 
-      // 执行导入
-      const result = await performImport(
-        context.env.DB,
-        userId,
-        importData,
-        options
-      )
+      // 执行导入（带超时保护）
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Import timeout - operation took too long')), IMPORT_TIMEOUT)
+      })
+
+      const result = await Promise.race([
+        performImport(context.env.DB, userId, importData, options),
+        timeoutPromise
+      ])
 
       return new Response(
         JSON.stringify(result),
@@ -368,6 +387,7 @@ async function createBookmark(
 
 /**
  * 关联书签和标签
+ * 使用优化的 createOrLinkTags 函数自动创建和链接标签
  */
 async function associateBookmarkTags(
   db: D1Database,
@@ -375,28 +395,15 @@ async function associateBookmarkTags(
   bookmarkId: string,
   tagNames: string[]
 ) {
-  // 获取标签ID
-  interface TagRow {
-    id: string
-    name: string
-  }
+  // 导入 createOrLinkTags 函数
+  const { createOrLinkTags } = await import('../../lib/tags')
   
-  const placeholders = tagNames.map(() => '?').join(',')
-  const { results: tags } = await db.prepare(`
-    SELECT id, name FROM tags 
-    WHERE user_id = ? AND name IN (${placeholders}) AND deleted_at IS NULL
-  `).bind(userId, ...tagNames).all<TagRow>()
-
-  // 创建关联
-  for (const tag of tags || []) {
-    try {
-      await db.prepare(`
-        INSERT OR IGNORE INTO bookmark_tags (bookmark_id, tag_id, user_id, created_at)
-        VALUES (?, ?, ?, datetime('now'))
-      `).bind(bookmarkId, tag.id, userId).run()
-    } catch (error) {
-      console.error('Failed to associate tag:', tag.name, error)
-    }
+  try {
+    // 使用批量处理函数（自动创建不存在的标签并链接）
+    await createOrLinkTags(db, bookmarkId, tagNames, userId)
+  } catch (error) {
+    console.error('Failed to associate tags:', error)
+    throw error
   }
 }
 

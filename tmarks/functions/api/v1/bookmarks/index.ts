@@ -10,6 +10,7 @@ import { invalidatePublicShareCache } from '../../shared/cache'
 import { CacheService } from '../../../lib/cache'
 import { createBookmarkCacheManager } from '../../../lib/cache/bookmark-cache'
 import type { QueryParams } from '../../../lib/cache/types'
+import { createOrLinkTags } from '../../../lib/tags'
 
 interface CreateBookmarkRequest {
   title: string
@@ -17,7 +18,8 @@ interface CreateBookmarkRequest {
   description?: string
   cover_image?: string
   favicon?: string
-  tag_ids?: string[]
+  tag_ids?: string[]  // 兼容旧版：标签 ID 数组
+  tags?: string[]     // 新版：标签名称数组（推荐）
   is_pinned?: boolean
   is_archived?: boolean
   is_public?: boolean
@@ -318,8 +320,10 @@ export const onRequestPost: PagesFunction<Env, RouteParams, AuthContext>[] = [
 
           return success(
             {
-              ...bookmark,
-              tags: tags || [],
+              bookmark: {
+                ...bookmark,
+                tags: tags || [],
+              },
             },
             {
               message: 'Bookmark already exists',
@@ -379,8 +383,12 @@ export const onRequestPost: PagesFunction<Env, RouteParams, AuthContext>[] = [
           .run()
       }
 
-      // 关联标签
-      if (body.tag_ids && body.tag_ids.length > 0) {
+      // 处理标签（支持两种方式）
+      if (body.tags && body.tags.length > 0) {
+        // 新版：直接传标签名称，后端自动创建或链接
+        await createOrLinkTags(context.env.DB, bookmarkId, body.tags, userId)
+      } else if (body.tag_ids && body.tag_ids.length > 0) {
+        // 兼容旧版：传标签 ID
         for (const tagId of body.tag_ids) {
           await context.env.DB.prepare(
             'INSERT INTO bookmark_tags (bookmark_id, tag_id, user_id, created_at) VALUES (?, ?, ?, ?)'
