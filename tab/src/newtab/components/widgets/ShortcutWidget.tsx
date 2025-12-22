@@ -115,14 +115,21 @@ export const ShortcutWidget = memo(function ShortcutWidget({
   const iconSize = 56;
   const initial = (title.charAt(0) || '?').toUpperCase();
 
+  const Container: React.ElementType = isEditing || isBatchMode ? 'div' : 'a';
+  const containerProps =
+    isEditing || isBatchMode
+      ? {
+          role: 'link',
+          tabIndex: 0,
+        }
+      : {
+          href: shortcut.url,
+        };
+
   return (
-    <a
-      href={isEditing || isBatchMode ? undefined : shortcut.url}
+    <Container
+      {...containerProps}
       onClick={handleClick}
-      draggable={false}
-      onDragStart={(e) => {
-        e.preventDefault();
-      }}
       className="group relative flex flex-col items-center justify-start h-full pt-2 px-2 rounded-xl transition-all duration-200 cursor-pointer"
     >
       <div
@@ -175,6 +182,6 @@ export const ShortcutWidget = memo(function ShortcutWidget({
       <span className="mt-1.5 text-xs text-white/90 truncate max-w-full px-1" title={title}>
         {title}
       </span>
-    </a>
+    </Container>
   );
 });

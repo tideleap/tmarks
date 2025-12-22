@@ -139,6 +139,15 @@ export const BookmarkFolderWidget = memo(function BookmarkFolderWidget({
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    // 在批量编辑模式下，双击进入文件夹
+    if (isBatchMode || isEditing) {
+      if (onOpenFolder) {
+        onOpenFolder(item.id);
+      } else {
+        setCurrentFolderId(item.id);
+      }
+      return;
+    }
     if (onOpenFolder) {
       onOpenFolder(item.id);
     } else {

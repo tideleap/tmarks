@@ -12,37 +12,21 @@ import { Z_INDEX } from '../constants/z-index';
 interface BatchEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  groupId?: string | null;
   selectedIds: Set<string>;
   onSelectedIdsChange: (next: Set<string>) => void;
 }
 
-export function BatchEditModal({ isOpen, onClose, groupId, selectedIds, onSelectedIdsChange }: BatchEditModalProps) {
-  const { shortcutGroups, activeGroupId, currentFolderId, gridItems, removeGridItem, updateGridItem } = useNewtabStore();
+export function BatchEditModal({ isOpen, onClose, selectedIds, onSelectedIdsChange }: BatchEditModalProps) {
+  const { shortcutGroups, getFilteredGridItems, removeGridItem, updateGridItem, activeGroupId, currentFolderId, gridItems, cleanupAllEmptyFolders, cleanupEmptyGroups } =
+    useNewtabStore();
   const [targetGroupId, setTargetGroupId] = useState<string>('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const filteredShortcuts = useMemo(
-    () =>
-      gridItems
-        .filter((i) => {
-          if (i.type !== 'shortcut') return false;
-
-          if (currentFolderId) {
-            const currentFolderItem = gridItems.find((x) => x.id === currentFolderId);
-            const isBrowserScope = !!currentFolderItem?.browserBookmarkId;
-            if (isBrowserScope) {
-              return !!i.browserBookmarkId && (i.parentId ?? null) === (currentFolderId ?? null);
-            }
-          }
-
-          if (i.browserBookmarkId) return false;
-          const targetGroup = groupId ?? activeGroupId ?? 'home';
-          return (i.groupId ?? 'home') === targetGroup && (i.parentId ?? null) === null;
-        })
-        .sort((a, b) => a.position - b.position),
-    [gridItems, currentFolderId, groupId, activeGroupId]
-  );
+  // 与主界面视图一致：直接取当前视图的过滤结果
+  const filteredItems = useMemo(() => {
+    const inView = getFilteredGridItems();
+    return inView.sort((a, b) => a.position - b.position);
+  }, [getFilteredGridItems, activeGroupId, currentFolderId, gridItems]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -53,10 +37,19 @@ export function BatchEditModal({ isOpen, onClose, groupId, selectedIds, onSelect
   if (!isOpen) return null;
 
   const handleSelectAll = () => {
-    if (selectedIds.size === filteredShortcuts.length) {
-      onSelectedIdsChange(new Set());
+    // 检查当前视图中的所有项目是否都已选中
+    const allSelected = filteredItems.length > 0 && filteredItems.every((i) => selectedIds.has(i.id));
+    
+    if (allSelected) {
+      // 取消选择当前视图中的所有项目
+      const next = new Set(selectedIds);
+      filteredItems.forEach((i) => next.delete(i.id));
+      onSelectedIdsChange(next);
     } else {
-      onSelectedIdsChange(new Set(filteredShortcuts.map((s) => s.id)));
+      // 选择当前视图中的所有项目
+      const next = new Set(selectedIds);
+      filteredItems.forEach((i) => next.add(i.id));
+      onSelectedIdsChange(next);
     }
   };
 
@@ -77,6 +70,13 @@ export function BatchEditModal({ isOpen, onClose, groupId, selectedIds, onSelect
     selectedIds.forEach(id => {
       updateGridItem(id, { groupId: targetGroupId, parentId: undefined });
     });
+    
+    // 清理空文件夹和空分组
+    setTimeout(() => {
+      cleanupAllEmptyFolders();
+      cleanupEmptyGroups();
+    }, 100);
+    
     onSelectedIdsChange(new Set());
     onClose();
   };
@@ -87,7 +87,7 @@ export function BatchEditModal({ isOpen, onClose, groupId, selectedIds, onSelect
     onClose();
   };
 
-  const isAllSelected = filteredShortcuts.length > 0 && selectedIds.size === filteredShortcuts.length;
+  const isAllSelected = filteredItems.length > 0 && filteredItems.every((i) => selectedIds.has(i.id));
 
   return createPortal(
     <>

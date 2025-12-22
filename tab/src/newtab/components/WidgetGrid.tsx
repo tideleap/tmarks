@@ -3,36 +3,36 @@
  * 支持不同尺寸的组件和拖拽排序
  */
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
-import { Plus, Settings2, Check } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { Settings2, Check } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
   DragOverlay,
+  type DragCancelEvent,
+  type DragOverEvent,
   type DragStartEvent,
 } from '@dnd-kit/core';
 import {
   SortableContext,
   sortableKeyboardCoordinates,
-  useSortable,
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { useNewtabStore } from '../hooks/useNewtabStore';
+import { Z_INDEX } from '../constants/z-index';
 import { WidgetRenderer } from './widgets/WidgetRenderer';
-import { WidgetSelector } from './widgets/WidgetSelector';
 import { WidgetConfigModal } from './widgets/WidgetConfigModal';
-import { AddShortcutModal } from './AddShortcutModal';
-import { AddBookmarkFolderModal } from './AddBookmarkFolderModal';
 import { BookmarkFolderModal } from './BookmarkFolderModal';
-import { FAVICON_API } from '../constants';
-import type { GridItem, GridItemType } from '../types';
-import { getSizeSpan } from './widgets/widgetRegistry';
+import { SortableGridItem } from './grid';
+import { useDndDebug, useDndDebugListeners } from './grid';
+import type { GridItem } from '../types';
 
 interface WidgetGridProps {
   columns: 6 | 8 | 10;
@@ -41,82 +41,9 @@ interface WidgetGridProps {
   onBatchSelectedIdsChange?: (next: Set<string>) => void;
 }
 
-// 可排序的网格项包装器
-function SortableGridItem({
-  item,
-  onUpdate,
-  onRemove,
-  isEditing,
-  onConfigClick,
-  onOpenFolder,
-  isBatchMode,
-  isSelected,
-  onToggleSelect,
-}: {
-  item: GridItem;
-  onUpdate?: (id: string, updates: Partial<GridItem>) => void;
-  onRemove?: (id: string) => void;
-  isEditing?: boolean;
-  onConfigClick?: (item: GridItem) => void;
-  onOpenFolder?: (folderId: string) => void;
-  isBatchMode?: boolean;
-  isSelected?: boolean;
-  onToggleSelect?: (id: string) => void;
-}) {
-  const { cols, rows } = getSizeSpan(item.size);
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: item.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    gridColumn: `span ${cols}`,
-    gridRow: `span ${rows}`,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  const handleDoubleClick = (e: React.MouseEvent) => {
-    if (isEditing && item.type !== 'shortcut') {
-      e.preventDefault();
-      e.stopPropagation();
-      onConfigClick?.(item);
-    }
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...(isEditing ? { ...attributes, ...listeners } : {})}
-      className={`touch-none ${isEditing ? 'cursor-grab active:cursor-grabbing' : ''}`}
-      onDoubleClick={handleDoubleClick}
-    >
-      <WidgetRenderer
-        item={item}
-        onUpdate={onUpdate}
-        onRemove={onRemove}
-        isEditing={isEditing}
-        onOpenFolder={onOpenFolder}
-        isBatchMode={isBatchMode}
-        isSelected={isSelected}
-        onToggleSelect={onToggleSelect}
-      />
-    </div>
-  );
-}
-
 export function WidgetGrid({ columns, isBatchMode, batchSelectedIds, onBatchSelectedIdsChange }: WidgetGridProps) {
   const {
-    shortcutGroups,
-    activeGroupId,
     gridItems,
-    addGridItem,
     updateGridItem,
     removeGridItem,
     getFilteredGridItems,
@@ -125,23 +52,32 @@ export function WidgetGrid({ columns, isBatchMode, batchSelectedIds, onBatchSele
     setCurrentFolderId,
     moveGridItemToFolder,
     reorderGridItemsInCurrentScope,
+    reorderGridItemsInFolderScope,
   } = useNewtabStore();
 
-  const [showWidgetSelector, setShowWidgetSelector] = useState(false);
-  const [showAddShortcut, setShowAddShortcut] = useState(false);
-  const [showAddFolder, setShowAddFolder] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeItemSnapshot, setActiveItemSnapshot] = useState<GridItem | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [configItem, setConfigItem] = useState<GridItem | null>(null);
   const [openFolderId, setOpenFolderId] = useState<string | null>(null);
+  const lastOverIdRef = useRef<string | null>(null);
+  const longPressTimerRef = useRef<number | null>(null);
+  const longPressStartPosRef = useRef<{ x: number; y: number } | null>(null);
+
+  const { pushDndDebug } = useDndDebug();
+  useDndDebugListeners(activeId, pushDndDebug);
 
   // 首次加载时尝试迁移数据
-  useMemo(() => {
+  useEffect(() => {
     migrateToGridItems();
   }, [migrateToGridItems]);
 
   // 获取当前分组的网格项
   const filteredItems = getFilteredGridItems();
+  const allSelectedInView =
+    isBatchMode &&
+    filteredItems.length > 0 &&
+    filteredItems.every((item) => batchSelectedIds?.has(item.id));
 
   const openFolder = useMemo(
     () => (openFolderId ? gridItems.find((item) => item.id === openFolderId && item.type === 'bookmarkFolder') ?? null : null),
@@ -155,14 +91,12 @@ export function WidgetGrid({ columns, isBatchMode, batchSelectedIds, onBatchSele
       .sort((a, b) => a.position - b.position);
   }, [gridItems, openFolder]);
 
-  // 当前分组名称
-  const currentGroupName = activeGroupId
-    ? shortcutGroups.find((g) => g.id === activeGroupId)?.name
-    : undefined;
-
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
+    useSensor(MouseSensor, {
+      activationConstraint: { distance: 6 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 150, tolerance: 5 },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
@@ -176,14 +110,61 @@ export function WidgetGrid({ columns, isBatchMode, batchSelectedIds, onBatchSele
     10: 'grid-cols-5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10',
   };
 
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
-  }, []);
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const id = String(event.active.id);
+      setActiveId(id);
+      const snapshot = gridItems.find((item) => item.id === id) ?? null;
+      setActiveItemSnapshot(snapshot);
+      lastOverIdRef.current = null;
+      pushDndDebug({
+        type: 'start',
+        id,
+        hasSnapshot: !!snapshot,
+        snapshotType: snapshot?.type ?? null,
+        ts: Date.now(),
+      });
+    },
+    [gridItems, pushDndDebug]
+  );
+
+  const handleDragCancel = useCallback((event: DragCancelEvent) => {
+    pushDndDebug({
+      type: 'cancel',
+      id: String(event.active.id),
+      lastOverId: lastOverIdRef.current,
+      ts: Date.now(),
+    });
+    setActiveId(null);
+    setActiveItemSnapshot(null);
+    lastOverIdRef.current = null;
+  }, [pushDndDebug]);
+
+  const handleDragOver = useCallback((event: DragOverEvent) => {
+    const overId = event.over?.id ? String(event.over.id) : null;
+    if (lastOverIdRef.current !== overId) {
+      lastOverIdRef.current = overId;
+      pushDndDebug({
+        type: 'over',
+        id: String(event.active.id),
+        overId,
+        ts: Date.now(),
+      });
+    }
+  }, [pushDndDebug]);
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
+      pushDndDebug({
+        type: 'end',
+        id: String(active.id),
+        overId: over?.id ? String(over.id) : null,
+        ts: Date.now(),
+      });
       setActiveId(null);
+      setActiveItemSnapshot(null);
+      lastOverIdRef.current = null;
 
       if (!over || active.id === over.id) return;
 
@@ -211,9 +192,19 @@ export function WidgetGrid({ columns, isBatchMode, batchSelectedIds, onBatchSele
         return;
       }
 
-      if (overId.startsWith('folder-modal-undock-root:')) {
-        moveGridItemToFolder(active.id as string, null);
-        return;
+      // Folder modal re-order (same parent folder)
+      if (openFolder?.id) {
+        const activeItem = gridItems.find((item) => item.id === String(active.id));
+        const overItem = gridItems.find((item) => item.id === String(over.id));
+        if (
+          activeItem &&
+          overItem &&
+          (activeItem.parentId ?? null) === openFolder.id &&
+          (overItem.parentId ?? null) === openFolder.id
+        ) {
+          reorderGridItemsInFolderScope(openFolder.id, String(active.id), String(over.id));
+          return;
+        }
       }
 
       const overItem = gridItems.find((item) => item.id === over.id);
@@ -224,40 +215,45 @@ export function WidgetGrid({ columns, isBatchMode, batchSelectedIds, onBatchSele
 
       reorderGridItemsInCurrentScope(active.id as string, over.id as string);
     },
-    [gridItems, moveGridItemToFolder, reorderGridItemsInCurrentScope]
+    [gridItems, moveGridItemToFolder, openFolder, pushDndDebug, reorderGridItemsInCurrentScope, reorderGridItemsInFolderScope]
   );
 
-  // 添加快捷方式
-  const handleAddShortcut = useCallback(
-    (url: string, title: string) => {
-      const domain = new URL(url).hostname;
-      addGridItem('shortcut', {
-        shortcut: {
-          url,
-          title,
-          favicon: `${FAVICON_API}${domain}&sz=64`,
-        },
-        groupId: activeGroupId || undefined,
-      });
+  // 长按 2 秒切换编辑模式（进入/退出）
+  const clearLongPress = useCallback(() => {
+    if (longPressTimerRef.current) {
+      window.clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    longPressStartPosRef.current = null;
+  }, []);
+
+  const handlePointerDownLongPress = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (e.button !== 0) return; // 仅左键
+      // 正在拖拽时不触发
+      if (activeId) return;
+      clearLongPress();
+      longPressStartPosRef.current = { x: e.clientX, y: e.clientY };
+      longPressTimerRef.current = window.setTimeout(() => {
+        setIsEditing((prev) => !prev);
+        clearLongPress();
+      }, 2000);
     },
-    [addGridItem, activeGroupId]
+    [activeId, clearLongPress]
   );
 
-  // 添加组件
-  const handleAddWidget = useCallback(
-    (type: GridItemType) => {
-      if (type === 'shortcut') {
-        setShowAddShortcut(true);
-      } else if (type === 'bookmarkFolder') {
-        setShowAddFolder(true);
-      } else {
-        addGridItem(type, {
-          groupId: activeGroupId || undefined,
-        });
-      }
-    },
-    [addGridItem, activeGroupId]
-  );
+  const handlePointerMoveLongPress = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!longPressStartPosRef.current) return;
+    const dx = e.clientX - longPressStartPosRef.current.x;
+    const dy = e.clientY - longPressStartPosRef.current.y;
+    if (Math.hypot(dx, dy) > 10) {
+      clearLongPress();
+    }
+  }, [clearLongPress]);
+
+  const handlePointerUpLongPress = useCallback(() => {
+    clearLongPress();
+  }, [clearLongPress]);
 
   const handleOpenFolder = useCallback((folderId: string) => {
     setOpenFolderId(folderId);
@@ -283,22 +279,13 @@ export function WidgetGrid({ columns, isBatchMode, batchSelectedIds, onBatchSele
   }, [currentFolderId, setCurrentFolderId]);
 
   // 获取当前拖拽的项
-  const activeItem = activeId
-    ? gridItems.find((item) => item.id === activeId)
-    : null;
+  const activeItem = activeItemSnapshot ?? (activeId ? gridItems.find((item) => item.id === activeId) : null);
 
   // 空状态
   if (filteredItems.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-4">
-        <button
-          onClick={() => setShowWidgetSelector(true)}
-          className="w-16 h-16 rounded-2xl glass hover:bg-white/20 flex items-center justify-center transition-all group"
-          title="添加组件"
-        >
-          <Plus className="w-8 h-8 text-white/50 group-hover:text-white/80 transition-colors" />
-        </button>
-        <span className="text-sm text-white/50">点击添加组件</span>
+      <div className="flex flex-col items-center gap-3 text-white/50">
+        <span className="text-sm">当前分组没有内容</span>
       </div>
     );
   }
@@ -309,10 +296,17 @@ export function WidgetGrid({ columns, isBatchMode, batchSelectedIds, onBatchSele
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragCancel={handleDragCancel}
         onDragEnd={handleDragEnd}
       >
         <SortableContext items={filteredItems.map((item) => item.id)} strategy={rectSortingStrategy}>
-          <div className={`grid ${gridCols[columns]} gap-4 auto-rows-[80px]`}>
+          <div
+            className={`grid ${gridCols[columns]} gap-4 auto-rows-[80px]`}
+            onPointerDown={handlePointerDownLongPress}
+            onPointerMove={handlePointerMoveLongPress}
+            onPointerUp={handlePointerUpLongPress}
+          >
             {filteredItems.map((item) => (
               <SortableGridItem
                 key={item.id}
@@ -328,70 +322,53 @@ export function WidgetGrid({ columns, isBatchMode, batchSelectedIds, onBatchSele
               />
             ))}
 
-            {isEditing && (
-              <button
-                onClick={() => setShowWidgetSelector(true)}
-                className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl
-                           glass hover:bg-white/20 transition-all duration-200
-                           cursor-pointer group aspect-square"
-              >
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
-                  <Plus className="w-6 h-6 text-white/60" />
-                </div>
-                <span className="text-xs text-white/60">添加</span>
-              </button>
-            )}
           </div>
         </SortableContext>
 
-        <DragOverlay>
-          {activeItem ? (
-            <div className="opacity-80">
-              <WidgetRenderer
-                item={activeItem}
-                onOpenFolder={handleOpenFolder}
-                isBatchMode={isBatchMode}
-                isSelected={!!batchSelectedIds?.has(activeItem.id)}
-                onToggleSelect={handleToggleSelect}
-              />
-            </div>
-          ) : null}
-        </DragOverlay>
+        {typeof document !== 'undefined'
+          ? createPortal(
+              <DragOverlay zIndex={Z_INDEX.DRAG_OVERLAY}>
+                {activeItem ? (
+                  <div className="opacity-80 pointer-events-none">
+                    <WidgetRenderer
+                      item={activeItem}
+                      onOpenFolder={handleOpenFolder}
+                      isEditing
+                      isBatchMode={isBatchMode}
+                      isSelected={!!batchSelectedIds?.has(activeItem.id)}
+                      onToggleSelect={handleToggleSelect}
+                    />
+                  </div>
+                ) : null}
+              </DragOverlay>,
+              document.body
+            )
+          : (
+              <DragOverlay zIndex={Z_INDEX.DRAG_OVERLAY}>
+                {activeItem ? (
+                  <div className="opacity-80 pointer-events-none">
+                    <WidgetRenderer
+                      item={activeItem}
+                      onOpenFolder={handleOpenFolder}
+                      isBatchMode={isBatchMode}
+                      isSelected={!!batchSelectedIds?.has(activeItem.id)}
+                      onToggleSelect={handleToggleSelect}
+                    />
+                  </div>
+                ) : null}
+              </DragOverlay>
+            )}
+
+        {openFolder ? (
+          <BookmarkFolderModal
+            folder={openFolder}
+            items={openFolderItems}
+            isOpen
+            onClose={() => setOpenFolderId(null)}
+            onOpenFolder={handleOpenFolder}
+          />
+        ) : null}
       </DndContext>
-
-      <WidgetSelector
-        isOpen={showWidgetSelector}
-        onClose={() => setShowWidgetSelector(false)}
-        onSelect={handleAddWidget}
-      />
-
-      <AddShortcutModal
-        isOpen={showAddShortcut}
-        onClose={() => setShowAddShortcut(false)}
-        onAdd={handleAddShortcut}
-        groupName={currentGroupName}
-      />
-
-      <AddBookmarkFolderModal
-        isOpen={showAddFolder}
-        onClose={() => setShowAddFolder(false)}
-        onSave={(name) => {
-          addGridItem('bookmarkFolder', {
-            groupId: activeGroupId || undefined,
-            bookmarkFolder: { title: name },
-          });
-        }}
-      />
-
-      {openFolder ? (
-        <BookmarkFolderModal
-          folder={openFolder}
-          items={openFolderItems}
-          isOpen
-          onClose={() => setOpenFolderId(null)}
-          onOpenFolder={handleOpenFolder}
-        />
-      ) : null}
 
       {configItem && (
         <WidgetConfigModal
@@ -423,7 +400,25 @@ export function WidgetGrid({ columns, isBatchMode, batchSelectedIds, onBatchSele
 
       {isEditing && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-full glass text-sm text-white/80 animate-fadeIn">
-          拖拽调整位置 · 双击配置组件 · 点击 ✓ 完成
+          拖拽调整位置 · 双击配置组件 · 点击 ✓ 完成 · 长按2秒可退出
+        </div>
+      )}
+      {isBatchMode && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-full glass text-sm text-white/80 animate-fadeIn">
+          <button
+            onClick={() => {
+              const next = new Set(batchSelectedIds ?? []);
+              if (allSelectedInView) {
+                filteredItems.forEach((i) => next.delete(i.id));
+              } else {
+                filteredItems.forEach((i) => next.add(i.id));
+              }
+              onBatchSelectedIdsChange?.(next);
+            }}
+            className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+          >
+            {allSelectedInView ? '取消全选当前分组' : '全选当前分组'}
+          </button>
         </div>
       )}
     </>

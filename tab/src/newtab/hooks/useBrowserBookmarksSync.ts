@@ -211,7 +211,11 @@ function toGridItems(
  */
 async function autoDiscoverAndCreateGroups(
   rootId: string,
-  addGroup: (name: string, icon: string) => void,
+  addGroup: (
+    name: string,
+    icon: string,
+    options?: { bookmarkFolderId?: string | null; skipBookmarkFolderCreation?: boolean }
+  ) => void,
   setGroupBookmarkFolderId: (groupId: string, folderId: string | null) => void
 ): Promise<void> {
   try {
@@ -232,24 +236,23 @@ async function autoDiscoverAndCreateGroups(
       
       // 每次都获取最新的分组状态
       const currentGroups = useNewtabStore.getState().shortcutGroups;
+
+      const matchedById = currentGroups.find((g) => g.bookmarkFolderId === folder.id);
+      if (matchedById) {
+        // 已存在绑定该文件夹的分组
+        continue;
+      }
       
       // 检查分组是否已存在（按名称匹配）
       const existingGroup = currentGroups.find(g => g.name === folder.title);
-      
+
       if (!existingGroup) {
         // 分组不存在，创建新分组
         console.log(`[TMarks] 自动创建分组: ${folder.title}`);
-        addGroup(folder.title, 'Folder');
-        
-        // 立即获取新创建的分组并关联文件夹ID
-        const updatedState = useNewtabStore.getState();
-        const newGroup = updatedState.shortcutGroups.find(g => g.name === folder.title);
-        if (newGroup) {
-          console.log(`[TMarks] 关联新分组 "${folder.title}" 到文件夹ID: ${folder.id}`);
-          setGroupBookmarkFolderId(newGroup.id, folder.id);
-        } else {
-          console.warn(`[TMarks] 创建分组后未能找到: ${folder.title}`);
-        }
+        addGroup(folder.title, 'Folder', {
+          bookmarkFolderId: folder.id,
+          skipBookmarkFolderCreation: true,
+        });
       } else if (!existingGroup.bookmarkFolderId) {
         // 分组存在但未关联文件夹ID，补充关联
         console.log(`[TMarks] 补充关联分组 "${folder.title}" 到文件夹ID: ${folder.id}`);
@@ -341,11 +344,47 @@ export function useBrowserBookmarksSync() {
 
         if (staleGroupIds.length) {
           console.log('[TMarks] 移除失效分组:', staleGroupIds);
-          staleGroupIds.forEach((id) => removeGroup(id));
+          staleGroupIds.forEach((id) =>
+            removeGroup(id, { skipBrowserBookmarkDeletion: true })
+          );
         }
       } catch (error) {
         console.warn('[TMarks] 清理失效分组失败:', error);
       }
+    };
+
+    const purgeBrowserLinkedGridItems = () => {
+      const snapshot = useNewtabStore.getState();
+      const filtered = snapshot.gridItems.filter((item) => !item.browserBookmarkId);
+      const nextCurrentFolderId =
+        snapshot.currentFolderId && filtered.some((item) => item.id === snapshot.currentFolderId)
+          ? snapshot.currentFolderId
+          : null;
+
+      useNewtabStore.setState({
+        gridItems: filtered,
+        currentFolderId: nextCurrentFolderId,
+      });
+      snapshot.saveData();
+    };
+
+    const resetBrowserLinkedState = () => {
+      const snapshot = useNewtabStore.getState();
+      const removableGroupIds = snapshot.shortcutGroups
+        .filter((group) => group.id !== 'home')
+        .map((group) => group.id);
+      removableGroupIds.forEach((groupId) => {
+        removeGroup(groupId, { skipBrowserBookmarkDeletion: true });
+      });
+
+      purgeBrowserLinkedGridItems();
+      setBrowserBookmarksRootId(null);
+      setHomeBrowserFolderId(null);
+    };
+
+    const handleRootFolderRemoved = async () => {
+      resetBrowserLinkedState();
+      await refreshFromBrowser();
     };
 
     const refreshFromBrowser = async () => {
@@ -358,6 +397,10 @@ export function useBrowserBookmarksSync() {
         if (disposed) return;
 
         const { id: rootId, wasRecreated } = result;
+
+        if (wasRecreated) {
+          resetBrowserLinkedState();
+        }
 
         setBrowserBookmarksRootId(rootId);
 
@@ -492,11 +535,33 @@ export function useBrowserBookmarksSync() {
       }
     };
 
-    const handleRemoved = (id: string, removeInfo: { parentId: string; index: number; node?: chrome.bookmarks.BookmarkTreeNode }) => {
+    const handleRemoved = (
+      id: string,
+      removeInfo: { parentId: string; index: number; node?: chrome.bookmarks.BookmarkTreeNode }
+    ) => {
       const now = Date.now();
       if (now < useNewtabStore.getState().browserBookmarkWriteLockUntil) return;
 
+      const stateBeforeRemoval = useNewtabStore.getState();
+      const browserRootId = stateBeforeRemoval.browserBookmarksRootId;
+      if (browserRootId && id === browserRootId) {
+        void handleRootFolderRemoved();
+        return;
+      }
+
       if (!isInScopeParent(removeInfo?.parentId)) return;
+
+      if (!isInScopeParent(removeInfo?.parentId)) return;
+
+      const matchingGroup = stateBeforeRemoval.shortcutGroups.find((g) => g.bookmarkFolderId === id);
+      if (
+        matchingGroup &&
+        matchingGroup.id !== 'home' &&
+        browserRootId &&
+        removeInfo?.parentId === browserRootId
+      ) {
+        removeGroup(matchingGroup.id, { skipBrowserBookmarkDeletion: true });
+      }
 
       setIsApplyingBrowserBookmarks(true);
       try {

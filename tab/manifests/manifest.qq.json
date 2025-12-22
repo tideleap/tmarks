@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AI 书签助手",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "智能标签推荐的浏览器书签管理工具 - QQ浏览器专用版",
   "icons": {
     "16": "icons/icon-16.png",

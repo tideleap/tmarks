@@ -111,20 +111,24 @@ export function GroupSidebar({ onOpenSettings }: GroupSidebarProps) {
         const canDelete = group.id !== 'home';
         const IconComponent = getIconComponent(group.icon);
         return (
-          <button
+          <div
             key={group.id}
-            onClick={() => setActiveGroup(group.id)}
+            className="relative"
             onMouseEnter={() => setHoveredGroup(group.id)}
             onMouseLeave={() => setHoveredGroup(null)}
-            data-group-id={group.id}
-            className={`relative w-11 h-11 rounded-xl flex items-center justify-center transition-all active:scale-90 ${
-              activeGroupId === group.id
-                ? 'bg-white/20 text-white'
-                : 'text-white/50 hover:text-white/80 hover:bg-white/10'
-            }`}
-            title={group.name}
           >
-            <IconComponent className="w-4 h-4" />
+            <button
+              onClick={() => setActiveGroup(group.id)}
+              data-group-id={group.id}
+              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all active:scale-90 ${
+                activeGroupId === group.id
+                  ? 'bg-white/20 text-white'
+                  : 'text-white/50 hover:text-white/80 hover:bg-white/10'
+              }`}
+              title={group.name}
+            >
+              <IconComponent className="w-4 h-4" />
+            </button>
             {hoveredGroup === group.id && (
               <div className="absolute left-full ml-2 px-2 py-1 rounded-lg bg-black/80 text-white text-xs whitespace-nowrap z-50 flex items-center gap-2">
                 {group.name}
@@ -136,7 +140,7 @@ export function GroupSidebar({ onOpenSettings }: GroupSidebarProps) {
                 )}
               </div>
             )}
-          </button>
+          </div>
         );
       })}
 

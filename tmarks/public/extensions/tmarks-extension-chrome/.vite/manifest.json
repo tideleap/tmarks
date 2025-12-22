@@ -1,6 +1,6 @@
 {
   "../../../../@crx/manifest": {
-    "file": "assets/crx-manifest.js-p0516eLZ.js",
+    "file": "assets/crx-manifest.js-BUgH4_Z4.js",
     "name": "crx-manifest.js",
     "src": "../../../../@crx/manifest",
     "isEntry": true
@@ -13,36 +13,36 @@
     "file": "assets/dexie-BAhLzSXZ.js",
     "name": "dexie"
   },
-  "_dnd-kit-DwRNzlS4.js": {
-    "file": "assets/dnd-kit-DwRNzlS4.js",
+  "_dnd-kit-Cq_WP-7G.js": {
+    "file": "assets/dnd-kit-Cq_WP-7G.js",
     "name": "dnd-kit",
     "imports": [
-      "_react-vendor-8QqtP9KZ.js"
+      "_react-vendor-D4eyb16t.js"
     ]
   },
-  "_index-CK9CFPi6.js": {
-    "file": "assets/index-CK9CFPi6.js",
-    "name": "index"
+  "_index-7RnQ6Fxb.js": {
+    "file": "assets/index-7RnQ6Fxb.js",
+    "name": "index",
+    "isDynamicEntry": true,
+    "imports": [
+      "_prompts-CKcm-rRX.js",
+      "_urls-DpCSGfkZ.js"
+    ]
   },
-  "_index-Ci77jrh9.js": {
-    "file": "assets/index-Ci77jrh9.js",
+  "_index-BVHSLjrj.js": {
+    "file": "assets/index-BVHSLjrj.js",
     "name": "index",
     "imports": [
-      "_urls-DlLG57hq.js",
-      "_react-vendor-8QqtP9KZ.js"
+      "_urls-DpCSGfkZ.js",
+      "_react-vendor-D4eyb16t.js"
     ],
     "css": [
       "assets/index-xYp2CjM0.css"
     ]
   },
-  "_index-DFUcQVuF.js": {
-    "file": "assets/index-DFUcQVuF.js",
-    "name": "index",
-    "isDynamicEntry": true,
-    "imports": [
-      "_prompts-CKcm-rRX.js",
-      "_urls-DlLG57hq.js"
-    ]
+  "_index-CK9CFPi6.js": {
+    "file": "assets/index-CK9CFPi6.js",
+    "name": "index"
   },
   "_index-NQ3jknxk.js": {
     "file": "assets/index-NQ3jknxk.js",
@@ -55,9 +55,9 @@
     "file": "assets/index-xYp2CjM0.css",
     "src": "_index-xYp2CjM0.css"
   },
-  "_index.ts-loader-BM67y7AR.js": {
-    "file": "assets/index.ts-loader-BM67y7AR.js",
-    "src": "_index.ts-loader-BM67y7AR.js"
+  "_index.ts-loader-BxzO9VrR.js": {
+    "file": "assets/index.ts-loader-BxzO9VrR.js",
+    "src": "_index.ts-loader-BxzO9VrR.js"
   },
   "_modulepreload-polyfill-YP0FEG5d.js": {
     "file": "assets/modulepreload-polyfill-YP0FEG5d.js",
@@ -75,24 +75,24 @@
     "file": "assets/prompts-CKcm-rRX.js",
     "name": "prompts"
   },
-  "_react-vendor-8QqtP9KZ.js": {
-    "file": "assets/react-vendor-8QqtP9KZ.js",
+  "_react-vendor-D4eyb16t.js": {
+    "file": "assets/react-vendor-D4eyb16t.js",
     "name": "react-vendor",
     "imports": [
       "_dexie-BAhLzSXZ.js"
     ]
   },
-  "_tab-collection-Bcusx_CO.js": {
-    "file": "assets/tab-collection-Bcusx_CO.js",
+  "_tab-collection-D8RrnWD8.js": {
+    "file": "assets/tab-collection-D8RrnWD8.js",
     "name": "tab-collection",
     "imports": [
       "_index-NQ3jknxk.js",
       "_index-CK9CFPi6.js",
-      "_urls-DlLG57hq.js"
+      "_urls-DpCSGfkZ.js"
     ]
   },
-  "_urls-DlLG57hq.js": {
-    "file": "assets/urls-DlLG57hq.js",
+  "_urls-DpCSGfkZ.js": {
+    "file": "assets/urls-DpCSGfkZ.js",
     "name": "urls"
   },
   "_vendor-BSnXPJO2.js": {
@@ -100,16 +100,16 @@
     "name": "vendor"
   },
   "src/background/index.ts": {
-    "file": "assets/index.ts-BohEKdhL.js",
+    "file": "assets/index.ts-CIZBaBC9.js",
     "name": "index.ts",
     "src": "src/background/index.ts",
     "isEntry": true,
     "imports": [
       "_index-NQ3jknxk.js",
-      "_index-DFUcQVuF.js",
-      "_urls-DlLG57hq.js",
+      "_index-7RnQ6Fxb.js",
+      "_urls-DpCSGfkZ.js",
       "_index-CK9CFPi6.js",
-      "_tab-collection-Bcusx_CO.js",
+      "_tab-collection-D8RrnWD8.js",
       "_newtabPrompts-5mIaLKQk.js",
       "_constants-LJ5_wtHo.js",
       "_dexie-BAhLzSXZ.js",
@@ -117,7 +117,7 @@
     ]
   },
   "src/content/index.ts": {
-    "file": "assets/index.ts-BDEETDjz.js",
+    "file": "assets/index.ts-YhIuz4me.js",
     "name": "index.ts",
     "src": "src/content/index.ts",
     "isEntry": true,
@@ -142,36 +142,36 @@
     "isDynamicEntry": true
   },
   "src/newtab/index.html": {
-    "file": "assets/newtab-DfE-E5Yo.js",
+    "file": "assets/newtab-B0HQ0zST.js",
     "name": "newtab",
     "src": "src/newtab/index.html",
     "isEntry": true,
     "imports": [
       "_modulepreload-polyfill-YP0FEG5d.js",
-      "_react-vendor-8QqtP9KZ.js",
-      "_preload-helper-BhLMWRjL.js",
+      "_react-vendor-D4eyb16t.js",
       "_constants-LJ5_wtHo.js",
-      "_urls-DlLG57hq.js",
+      "_urls-DpCSGfkZ.js",
+      "_preload-helper-BhLMWRjL.js",
       "_vendor-BSnXPJO2.js",
       "_index-CK9CFPi6.js",
-      "_dnd-kit-DwRNzlS4.js",
+      "_dnd-kit-Cq_WP-7G.js",
       "_newtabPrompts-5mIaLKQk.js",
       "_dexie-BAhLzSXZ.js"
     ],
     "css": [
-      "assets/newtab-B0dtBhXx.css"
+      "assets/newtab-BD4tbac1.css"
     ]
   },
   "src/options/index.html": {
-    "file": "assets/options-RgAF3_mC.js",
+    "file": "assets/options-Ckm5dqr6.js",
     "name": "options",
     "src": "src/options/index.html",
     "isEntry": true,
     "imports": [
       "_modulepreload-polyfill-YP0FEG5d.js",
-      "_react-vendor-8QqtP9KZ.js",
-      "_index-Ci77jrh9.js",
-      "_urls-DlLG57hq.js",
+      "_react-vendor-D4eyb16t.js",
+      "_index-BVHSLjrj.js",
+      "_urls-DpCSGfkZ.js",
       "_prompts-CKcm-rRX.js",
       "_newtabPrompts-5mIaLKQk.js",
       "_preload-helper-BhLMWRjL.js",
@@ -179,30 +179,30 @@
       "_dexie-BAhLzSXZ.js"
     ],
     "dynamicImports": [
-      "_index-DFUcQVuF.js"
+      "_index-7RnQ6Fxb.js"
     ],
     "css": [
-      "assets/options-Dccd9Zsn.css"
+      "assets/options-BEomSHq0.css"
     ]
   },
   "src/popup/index.html": {
-    "file": "assets/popup-BP71JkRZ.js",
+    "file": "assets/popup-CD8WumqQ.js",
     "name": "popup",
     "src": "src/popup/index.html",
     "isEntry": true,
     "imports": [
       "_modulepreload-polyfill-YP0FEG5d.js",
-      "_react-vendor-8QqtP9KZ.js",
-      "_index-Ci77jrh9.js",
-      "_urls-DlLG57hq.js",
+      "_react-vendor-D4eyb16t.js",
+      "_index-BVHSLjrj.js",
+      "_urls-DpCSGfkZ.js",
       "_vendor-BSnXPJO2.js",
-      "_tab-collection-Bcusx_CO.js",
+      "_tab-collection-D8RrnWD8.js",
       "_index-CK9CFPi6.js",
       "_dexie-BAhLzSXZ.js",
       "_index-NQ3jknxk.js"
     ],
     "css": [
-      "assets/popup-K6dh3uCG.css"
+      "assets/popup-CUoGi4qR.css"
     ]
   }
 }

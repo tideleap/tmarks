@@ -50,7 +50,7 @@ function SortableModalItem({
       className="touch-none cursor-grab active:cursor-grabbing"
     >
       <div className="h-[88px] w-[80px]">
-        <WidgetRenderer item={item} onOpenFolder={onOpenFolder} />
+        <WidgetRenderer item={item} onOpenFolder={onOpenFolder} isEditing />
       </div>
     </div>
   );
@@ -81,16 +81,11 @@ export function BookmarkFolderModal({
     () => `folder-modal-undock-parent:${folder.id}:${effectiveParentId ?? 'root'}`,
     [folder.id, effectiveParentId]
   );
-  const undockRootDropId = useMemo(() => `folder-modal-undock-root:${folder.id}`, [folder.id]);
 
   const { setNodeRef: setDropRef, isOver: isOverDrop } = useDroppable({ id: dropId });
   const { setNodeRef: setOutsideDropRef, isOver: isOverOutside } = useDroppable({ id: outsideDropId });
   const { setNodeRef: setUndockParentDropRef, isOver: isOverUndockParent } = useDroppable({
     id: undockParentDropId,
-    disabled: false,
-  });
-  const { setNodeRef: setUndockRootDropRef, isOver: isOverUndockRoot } = useDroppable({
-    id: undockRootDropId,
     disabled: false,
   });
 
@@ -256,7 +251,6 @@ export function BookmarkFolderModal({
           isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         }`}
         style={{ zIndex: Z_INDEX.MODAL_CONTENT }}
-        onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -336,7 +330,7 @@ export function BookmarkFolderModal({
             </SortableContext>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="mt-4">
             <div
               ref={setUndockParentDropRef}
               className={`rounded-2xl px-4 py-3 text-sm text-white/70 border border-dashed transition-colors ${
@@ -345,16 +339,6 @@ export function BookmarkFolderModal({
               title={(folder.parentId ?? null) ? '移到上一级文件夹' : '移到首页'}
             >
               移到上一级（{parentHint}）
-            </div>
-
-            <div
-              ref={setUndockRootDropRef}
-              className={`rounded-2xl px-4 py-3 text-sm text-white/70 border border-dashed transition-colors ${
-                isOverUndockRoot ? 'bg-white/10 border-white/40' : 'bg-white/5 border-white/20'
-              }`}
-              title="移到首页"
-            >
-              移到首页
             </div>
           </div>
         </div>

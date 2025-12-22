@@ -5,7 +5,6 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
 import { Plus, Edit, FolderPlus } from 'lucide-react';
 import { useNewtabStore } from './hooks/useNewtabStore';
-import { useBrowserBookmarksSync } from './hooks/useBrowserBookmarksSync';
 import { Clock } from './components/Clock';
 import { SearchBar } from './components/SearchBar';
 import { WidgetGrid } from './components/WidgetGrid';
@@ -19,16 +18,18 @@ import { SettingsPanel } from './components/SettingsPanel';
 import { AddShortcutModal } from './components/AddShortcutModal';
 import { AddBookmarkFolderModal } from './components/AddBookmarkFolderModal';
 import { BatchEditModal } from './components/BatchEditModal';
+import { BatchEditTip } from './components/BatchEditTip';
 import { ShortcutContextMenu } from './components/ShortcutContextMenu';
 import { FAVICON_API } from './constants';
+import { useBrowserBookmarksSync } from './hooks/useBrowserBookmarksSync';
 
 export function NewTab() {
   const { settings, isLoading, loadData, updateSettings, shortcutGroups, activeGroupId, setActiveGroup, addGridItem } = useNewtabStore();
-  useBrowserBookmarksSync();
   const [showSettings, setShowSettings] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAddFolderModal, setShowAddFolderModal] = useState(false);
   const [showBatchEdit, setShowBatchEdit] = useState(false);
+  const [showBatchEditTip, setShowBatchEditTip] = useState(false);
   const [batchSelectedIds, setBatchSelectedIds] = useState<Set<string>>(new Set());
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const wheelTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -37,6 +38,8 @@ export function NewTab() {
   // 使用 ref 存储最新的状态，避免 handleWheel 频繁重建
   const stateRef = useRef({ shortcutGroups, activeGroupId, setActiveGroup });
   stateRef.current = { shortcutGroups, activeGroupId, setActiveGroup };
+
+  useBrowserBookmarksSync();
 
   useEffect(() => {
     loadData();
@@ -259,6 +262,12 @@ export function NewTab() {
         onSelectedIdsChange={setBatchSelectedIds}
       />
 
+      {/* 批量编辑提示 */}
+      <BatchEditTip
+        isOpen={showBatchEditTip}
+        onClose={() => setShowBatchEditTip(false)}
+      />
+
       {/* 添加文件夹弹窗 */}
       <AddBookmarkFolderModal
         isOpen={showAddFolderModal}
@@ -293,6 +302,7 @@ export function NewTab() {
               onClick: () => {
                 setBatchSelectedIds(new Set());
                 setShowBatchEdit(true);
+                setShowBatchEditTip(true);
               },
               divider: true,
             },

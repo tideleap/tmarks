@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AI 书签助手",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "智能标签推荐的浏览器书签管理工具",
   "icons": {
     "16": "icons/icon-16.png",
@@ -39,7 +39,7 @@
   "content_scripts": [
     {
       "js": [
-        "assets/index.ts-loader-BM67y7AR.js"
+        "assets/index.ts-loader-BxzO9VrR.js"
       ],
       "matches": [
         "<all_urls>"
@@ -65,7 +65,7 @@
         "assets/preload-helper-BhLMWRjL.js",
         "assets/singlefile-capture-Bkt_j5oF.js",
         "assets/singlefile-capture-v2-DXdSZKa8.js",
-        "assets/index.ts-BDEETDjz.js"
+        "assets/index.ts-YhIuz4me.js"
       ],
       "use_dynamic_url": false
     }
