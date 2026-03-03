@@ -76,9 +76,14 @@ ${tagGuide}${styleGuide}
 
 标签推荐规则：
 1. **优先使用已有标签**，避免创建重复标签
-2. 标签要准确反映网页内容和用途
-3. ${tagLengthRule}
-4. ${translationRule}
+2. **层级化标签策略**：
+   - 每个网址至少包含 1-2 个通用大分类标签（如：邮箱、GitHub）
+   - 再包含具体的细分标签（如：Gmail、谷歌邮箱、企业邮箱）
+   - 示例：Gmail → 推荐 ["邮箱", "Gmail", "谷歌服务"]
+   - 示例：GitHub 仓库链接 → 推荐 ["GitHub", "开源", "代码托管"]
+3. 标签要准确反映网页内容和用途
+4. ${tagLengthRule}
+5. ${translationRule}
 
 返回格式（严格遵循）：
 [

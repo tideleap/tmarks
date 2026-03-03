@@ -38,10 +38,11 @@ export function useTMarksImport(formData: any) {
 
       const parsedBookmarks: ParsedBookmark[] = bookmarksToImport
         .filter(b => b.isSelected && !b.isSkipped)
+        .filter(b => b.url && b.url.trim() && b.title && b.title.trim()) // 过滤掉空 URL 或空标题
         .map(b => ({
-          url: b.url,
-          title: b.title,
-          description: b.description,
+          url: b.url.trim(),
+          title: b.title.trim(),
+          description: b.description?.trim() || '',
           tags: b.tags.map(t => t.name),
           addDate: Date.now(),
           icon: ''

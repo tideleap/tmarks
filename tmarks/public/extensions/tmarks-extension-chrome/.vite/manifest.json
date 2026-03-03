@@ -5,8 +5,8 @@
     "src": "../../../../@crx/manifest",
     "isEntry": true
   },
-  "_ai-client-ByqpBVfE.js": {
-    "file": "assets/ai-client-ByqpBVfE.js",
+  "_ai-client-DUDeem_g.js": {
+    "file": "assets/ai-client-DUDeem_g.js",
     "name": "ai-client",
     "imports": [
       "_logger-BU7s74xS.js"
@@ -23,18 +23,18 @@
       "_react-vendor-tC7tIcdT.js"
     ]
   },
-  "_index-B00qm-tD.js": {
-    "file": "assets/index-B00qm-tD.js",
-    "name": "index",
-    "isDynamicEntry": true,
-    "imports": [
-      "_ai-client-ByqpBVfE.js",
-      "_logger-BU7s74xS.js"
-    ]
-  },
   "_index-CcC07_cB.css": {
     "file": "assets/index-CcC07_cB.css",
     "src": "_index-CcC07_cB.css"
+  },
+  "_index-Ctwd5k0q.js": {
+    "file": "assets/index-Ctwd5k0q.js",
+    "name": "index",
+    "isDynamicEntry": true,
+    "imports": [
+      "_ai-client-DUDeem_g.js",
+      "_logger-BU7s74xS.js"
+    ]
   },
   "_index-DMH_F6fS.js": {
     "file": "assets/index-DMH_F6fS.js",
@@ -96,17 +96,17 @@
     "name": "vendor"
   },
   "src/background/index.ts": {
-    "file": "assets/index.ts-uvgidQ-F.js",
+    "file": "assets/index.ts-CRCX8FfN.js",
     "name": "index.ts",
     "src": "src/background/index.ts",
     "isEntry": true,
     "imports": [
       "_logger-BU7s74xS.js",
       "_index-DhCFmzwv.js",
-      "_index-B00qm-tD.js",
+      "_index-Ctwd5k0q.js",
       "src/lib/api/index.ts",
       "_tab-collection-Lf-N5dOE.js",
-      "_ai-client-ByqpBVfE.js",
+      "_ai-client-DUDeem_g.js",
       "_dexie-BAhLzSXZ.js"
     ]
   },
@@ -170,7 +170,7 @@
     ]
   },
   "src/options/index.html": {
-    "file": "assets/options-BUSSpbmw.js",
+    "file": "assets/options-D546qy90.js",
     "name": "options",
     "src": "src/options/index.html",
     "isEntry": true,
@@ -179,7 +179,7 @@
       "_react-vendor-tC7tIcdT.js",
       "_index-DMH_F6fS.js",
       "_logger-BU7s74xS.js",
-      "_ai-client-ByqpBVfE.js",
+      "_ai-client-DUDeem_g.js",
       "_preload-helper-BhLMWRjL.js",
       "_index-DhCFmzwv.js",
       "_dexie-BAhLzSXZ.js"
@@ -189,7 +189,7 @@
       "src/lib/import/api.ts",
       "src/lib/import/api.ts",
       "_logger-BU7s74xS.js",
-      "_index-B00qm-tD.js"
+      "_index-Ctwd5k0q.js"
     ],
     "css": [
       "assets/options-iONp6dA1.css"

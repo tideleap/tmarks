@@ -208,16 +208,12 @@ export const onRequestPost: PagesFunction<Env, RouteParams, ApiKeyAuthContext>[]
       // 检测是否为批量创建请求
       if (body.bookmarks && Array.isArray(body.bookmarks)) {
         console.log('[Bookmarks POST] ===== BATCH MODE DETECTED =====')
-        // 直接返回测试响应，不调用 batch-handler
-        return success({
-          success: 0,
-          failed: 0,
-          skipped: 0,
-          total: body.bookmarks.length,
-          created_bookmarks: [],
-          test: 'INLINE_BATCH_DETECTED',
-          firstBookmark: body.bookmarks[0]
-        })
+        console.log('[Bookmarks POST] Bookmarks count:', body.bookmarks.length)
+        console.log('[Bookmarks POST] First bookmark:', JSON.stringify(body.bookmarks[0]))
+        
+        // 调用批量处理器
+        const { batchCreateBookmarks } = await import('./batch-handler')
+        return await batchCreateBookmarks(context, userId, body.bookmarks)
       }
 
       console.log('[Bookmarks POST] Processing single bookmark')

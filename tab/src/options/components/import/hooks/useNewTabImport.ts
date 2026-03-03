@@ -21,7 +21,9 @@ export function useNewTabImport() {
       const response = await chrome.runtime.sendMessage({
         type: 'IMPORT_URLS_TO_NEWTAB',
         payload: {
-          bookmarks: bookmarksToImport.filter(b => b.isSelected && !b.isSkipped),
+          bookmarks: bookmarksToImport
+            .filter(b => b.isSelected && !b.isSkipped)
+            .filter(b => b.url && b.url.trim() && b.title && b.title.trim()), // 过滤掉空 URL 或空标题
           options
         }
       })
